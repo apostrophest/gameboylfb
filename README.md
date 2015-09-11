@@ -18,16 +18,17 @@ the target/natives directory respectively.
 ### How to manually run after compiling
 Yeah about that. From the base directory, enter the 'target/classes' directory
 that is generated after a `mvn compile` and do:
-`java -cp ../lib/*:. -Djava.library.path=../natives/ \
-     com.github.reisnera.gameboylfb.HelloWorld`
+
+`java -cp ../lib/*:. -Djava.library.path=../natives/ com.github.reisnera.gameboylfb.HelloWorld`
 
 To manually run the jar is easier since it is configured with the classpath by
 default. From the 'target' directory after a `mvn package`:
+
 `java -Djava.library.path=natives -jar gameboylfb-1.0.0-alpha-SNAPSHOT.jar`
 
 ### License
  GameBoyLFB - A Java Game Boy emulator.
- Copyright (C) 2015 Alex Reisner <thearcher at gmail dot com>
+ Copyright (C) 2015 Alex Reisner (thearcher at gmail dot com)
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
