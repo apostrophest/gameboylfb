@@ -1,7 +1,7 @@
 # GameBoyLFB
 ## Another contender (but not really) among the many Game Boy emulators.
 
-### How to Build
+### How to Build and Run
 It's easy as pie! Unless I misconfigured the maven build...
 
 - To compile: `mvn compile`
@@ -20,20 +20,18 @@ the target/natives directory respectively.
 In Linux, from the base directory, enter the 'target' directory that is
 generated after a `mvn compile` and do:
 
-`java -cp "classes:lib/*" -Djava.library.path=natives com.github.reisnera.gameboylfb.HelloWorld`
+`java -cp "classes:lib/*" com.github.reisnera.gameboylfb.HelloWorld`
 
 In Windows, do the same thing as in linux, except that the colon changes to a
 semicolon, and you have to put quotes around the -D option (at least in Power-
 Shell):
 
-`java -cp "classes;lib/*" -D"java.library.path=natives" com.github.reisnera.gameboylfb.HelloWorld`
+`java -cp "classes;lib/*" com.github.reisnera.gameboylfb.HelloWorld`
 
 To manually run the jar is easier since it is configured with the classpath by
 default. From the 'target' directory after a `mvn package`:
 
-`java -Djava.library.path=natives -jar gameboylfb-1.0.0-alpha-SNAPSHOT.jar`
-
-Again, in PowerShell, you will need to do `-D"java.library.path=natives"`.
+`java -jar gameboylfb-1.0.0-alpha-SNAPSHOT.jar`
 
 ### License
  GameBoyLFB - A Java Game Boy emulator.

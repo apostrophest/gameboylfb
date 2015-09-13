@@ -87,7 +87,7 @@
 									<classifier>natives-${lwjgl.platform}</classifier>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>${project.build.directory}/natives</outputDirectory>
+							<outputDirectory>${project.build.directory}</outputDirectory>
 							<overWriteSnapshots>true</overWriteSnapshots>
 						</configuration>
 					</execution>
@@ -142,7 +142,6 @@
 					<arguments>
 						<argument>-classpath</argument>
 						<classpath/>
-						<argument>-Djava.library.path=${project.build.directory}/natives</argument>
 						<argument>com.github.reisnera.gameboylfb.HelloWorld</argument>
 					</arguments>
 				</configuration>
