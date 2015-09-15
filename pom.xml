@@ -142,7 +142,7 @@
 					<arguments>
 						<argument>-classpath</argument>
 						<classpath/>
-						<argument>com.github.reisnera.gameboylfb.HelloWorld</argument>
+						<argument>com.github.reisnera.gameboylfb.GameBoyAppLauncher</argument>
 					</arguments>
 				</configuration>
 			</plugin>
@@ -156,7 +156,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.github.reisnera.gameboylfb.HelloWorld</mainClass>
+							<mainClass>com.github.reisnera.gameboylfb.GameBoyAppLauncher</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
