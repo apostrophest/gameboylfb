@@ -26,7 +26,7 @@ public class GameBoyAppLauncher {
 			fh.setFormatter(new SimpleFormatter());
 		}
 		catch(IOException ex) {
-			log.log(Level.SEVERE, "Unable to open log file for writing!");
+			log.log(Level.WARNING, "Unable to open log file for writing!");
 		}
 
 		// Test GameBoyRom class
