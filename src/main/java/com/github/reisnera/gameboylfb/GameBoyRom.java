@@ -8,10 +8,11 @@
 
 package com.github.reisnera.gameboylfb;
 
-import java.io.IOException;
 //import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
+import java.io.IOException;
+import java.io.EOFException;
 
 public class GameBoyRom {
 
@@ -38,17 +39,17 @@ public class GameBoyRom {
 		}
 	}
 
-	public byte getByte() throws RomEndOfFileException {
+	public byte getByte() throws EOFException {
 		if(seekPos >= romLength) {
-			throw new RomEndOfFileException();
+			throw new EOFException();
 		}
 		try { return romData[seekPos]; }
 		finally{ seekPos += 1; }
 	}
 
-	public byte[] getBytes(int numBytes) throws RomEndOfFileException {
+	public byte[] getBytes(int numBytes) throws EOFException {
 		if(numBytes + seekPos > romLength) {
-			throw new RomEndOfFileException();
+			throw new EOFException();
 		}
 		else {
 			byte[] bytes = new byte[numBytes];
