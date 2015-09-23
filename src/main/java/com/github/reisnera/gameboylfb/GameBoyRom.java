@@ -10,11 +10,13 @@ package com.github.reisnera.gameboylfb;
 
 //import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.io.EOFException;
 
 public class GameBoyRom {
+	private static final Logger log = Logger.getLogger("Main Log");
 
 	private final byte[] romData;
 	private final int romLength;

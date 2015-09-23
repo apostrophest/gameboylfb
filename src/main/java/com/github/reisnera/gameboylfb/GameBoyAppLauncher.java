@@ -15,7 +15,7 @@ import java.util.logging.SimpleFormatter;
 import java.io.IOException;
 
 public class GameBoyAppLauncher {
-	private static final Logger log = Logger.getLogger(GameBoyAppLauncher.class.getName());
+	private static final Logger log = Logger.getLogger("Main Log");
 
 	public static void main(String[] args) {
 		// Set up logging
@@ -34,9 +34,10 @@ public class GameBoyAppLauncher {
 			GameBoyRom rom = new GameBoyRom("../test.txt");
 		}
 		catch(Exception ex) {
-			log.log(Level.SEVERE, ex.getMessage(), ex);
+			log.log(Level.SEVERE, ex.toString(), ex);
 		}
 
+		GameBoyVideo video = new GameBoyVideo();
 		System.out.println("Goodbye!");
 	}
 }
