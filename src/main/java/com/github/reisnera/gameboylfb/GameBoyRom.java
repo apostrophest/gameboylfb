@@ -37,7 +37,7 @@ public class GameBoyRom {
 			seekPos = newPosition;
 		}
 		else {
-			throw new RomInvalidPositionException();
+			throw new RomInvalidPositionException(newPosition);
 		}
 	}
 
