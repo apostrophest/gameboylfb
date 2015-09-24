@@ -1,5 +1,8 @@
 # Based on files from https://github.com/github/gitignore
 
+# Game Boy ROMs
+*.gb
+
 # Java:
 *.class
 *.jar

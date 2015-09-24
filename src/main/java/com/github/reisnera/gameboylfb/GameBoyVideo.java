@@ -14,6 +14,6 @@ public class GameBoyVideo {
 	private static final Logger log = Logger.getLogger("Main Log");
 
 	public GameBoyVideo() {
-		log.info("This is a test.");
+		log.fine("This is a test.");
 	}
 }

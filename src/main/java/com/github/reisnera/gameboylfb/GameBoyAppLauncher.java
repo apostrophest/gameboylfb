@@ -17,6 +17,8 @@ import java.io.IOException;
 public class GameBoyAppLauncher {
 	private static final Logger log = Logger.getLogger("Main Log");
 
+	static GameBoyRom rom = null;
+
 	public static void main(String[] args) {
 		// Set up logging
 		log.setLevel(Level.INFO);
@@ -29,13 +31,15 @@ public class GameBoyAppLauncher {
 			log.log(Level.WARNING, "Unable to open log file for writing!");
 		}
 
-		// Test GameBoyRom class
+		// Load a Game Boy ROM
 		try {
-			GameBoyRom rom = new GameBoyRom("../test.txt");
+			rom = new GameBoyRom("../Alleyway.gb");
 		}
 		catch(Exception ex) {
 			log.log(Level.SEVERE, ex.toString(), ex);
 		}
+
+		System.out.println(rom.hGameTitle);
 
 		GameBoyVideo video = new GameBoyVideo();
 		System.out.println("Goodbye!");
