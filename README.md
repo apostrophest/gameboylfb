@@ -1,6 +1,13 @@
 # GameBoyLFB
 ## Another contender (but not really) among the many Game Boy emulators.
 
+### Some important notes
+- The internal game boy ROM file can be found here:
+  - http://www.neviksti.com/DMG/DMG_ROM.bin
+  - Place the above file in the root directory of the project.
+- At the moment, I am only focusing on implementing support for ROM-only
+  cartridges. An example is the game Alleyway (one of the GB release games).
+
 ### How to Build and Run
 It's easy as pie! Unless I misconfigured the maven build...
 
