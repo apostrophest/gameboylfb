@@ -20,16 +20,7 @@ public class GameBoyAppLauncher {
 	static GameBoyRom rom = null;
 
 	public static void main(String[] args) {
-		// Set up logging
-		log.setLevel(Level.INFO);
-		try {
-			FileHandler fh = new FileHandler("./LogFile.txt");
-			log.addHandler(fh);
-			fh.setFormatter(new SimpleFormatter());
-		}
-		catch(IOException ex) {
-			log.log(Level.WARNING, "Unable to open log file for writing!");
-		}
+		configureLogging();
 
 		// Load a Game Boy ROM
 		try {
@@ -43,5 +34,17 @@ public class GameBoyAppLauncher {
 
 		GameBoyVideo video = new GameBoyVideo();
 		System.out.println("Goodbye!");
+	}
+
+	private static void configureLogging() {
+		log.setLevel(Level.INFO);
+		try {
+			FileHandler fh = new FileHandler("./LogFile.txt");
+			log.addHandler(fh);
+			fh.setFormatter(new SimpleFormatter());
+		}
+		catch(IOException ex) {
+			log.log(Level.WARNING, "Unable to open log file for writing!");
+		}
 	}
 }
