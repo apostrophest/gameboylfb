@@ -35,6 +35,11 @@ public class GameBoyRom {
 		romData = Files.readAllBytes(Paths.get(fileName));
 		romLength = romData.length;
 
+		// ROM should be exactly 32KB
+		if(romLength != 0x8000) {
+			throw new RomInvalidFileException("ROM length incorrect.");
+		}
+
 		// Process the ROM header
 		if(romData[0x143] != 0x00) {
 			throw new RomInvalidFileException("ROM may be for CGB.");
