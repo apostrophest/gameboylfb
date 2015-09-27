@@ -18,6 +18,7 @@ public class GameBoyAppLauncher {
 	private static final Logger log = Logger.getLogger("Main Log");
 
 	static GameBoyRom rom = null;
+	static GameBoyMemory mem = null;
 
 	public static void main(String[] args) {
 		configureLogging();
@@ -32,8 +33,17 @@ public class GameBoyAppLauncher {
 
 		System.out.println(rom.hGameTitle);
 
-		GameBoyVideo video = new GameBoyVideo();
-		System.out.println("Goodbye!");
+		try {
+			mem = new GameBoyMemory(rom);
+		}
+		catch(Exception ex) {
+			log.log(Level.SEVERE, ex.toString(), ex);
+		}
+
+		// testing...
+		System.out.println(String.format("%x", mem.readByte((short)0)));
+		mem.disableDmgRom();
+		System.out.println(String.format("%x", mem.readByte((short)0)));
 	}
 
 	private static void configureLogging() {
