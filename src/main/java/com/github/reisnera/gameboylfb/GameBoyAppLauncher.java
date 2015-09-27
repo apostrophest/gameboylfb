@@ -41,9 +41,9 @@ public class GameBoyAppLauncher {
 		}
 
 		// testing...
-		System.out.println(String.format("%x", mem.readByte((short)0)));
+		System.out.println(String.format("%x", mem.readByte(0)));
 		mem.disableDmgRom();
-		System.out.println(String.format("%x", mem.readByte((short)0)));
+		System.out.println(String.format("%x", mem.readByte(0)));
 	}
 
 	private static void configureLogging() {

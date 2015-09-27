@@ -12,35 +12,35 @@ public class MemoryRomWriteException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	private final short romAddress;
+	private final int romAddress;
 
-	public MemoryRomWriteException(short addr) {
+	public MemoryRomWriteException(int addr) {
 		super();
 		romAddress = addr;
 	}
 
-	public MemoryRomWriteException(String message, short addr) {
+	public MemoryRomWriteException(String message, int addr) {
 		super(message);
 		romAddress = addr;
 	}
 
-	public MemoryRomWriteException(Throwable cause, short addr) {
+	public MemoryRomWriteException(Throwable cause, int addr) {
 		super(cause);
 		romAddress = addr;
 	}
 
-	public MemoryRomWriteException(String message, Throwable cause, short addr) {
+	public MemoryRomWriteException(String message, Throwable cause, int addr) {
 		super(message, cause);
 		romAddress = addr;
 	}
 
 	public MemoryRomWriteException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace, short addr) {
+			boolean writableStackTrace, int addr) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		romAddress = addr;
 	}
 
-	public short getRequestedRomAddress() {
+	public int getRequestedRomAddress() {
 		return romAddress;
 	}
 }

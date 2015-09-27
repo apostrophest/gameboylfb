@@ -38,7 +38,7 @@ public class GameBoyMemory {
 		System.arraycopy(rom.romData, 0, memory, 0, 256);
 	}
 
-	public byte readByte(short addr) {
+	public byte readByte(int addr) {
 		// Take into account the mirrored RAM area
 		if(addr >= 0xE000 && addr < 0xFE00) {
 			addr -= 0x2000;
@@ -46,7 +46,7 @@ public class GameBoyMemory {
 		return memory[addr];
 	}
 
-	public void writeByte(byte data, short addr) throws MemoryRomWriteException {
+	public void writeByte(byte data, int addr) throws MemoryRomWriteException {
 		if(addr < 0x8000) {
 			throw new MemoryRomWriteException(addr);
 		} else if(addr >= 0xE000 && addr < 0xFE00) {
