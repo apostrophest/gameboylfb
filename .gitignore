@@ -42,3 +42,7 @@ local.properties
 *.launch
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# IntelliJ IDEA
+*.iml
+.idea
