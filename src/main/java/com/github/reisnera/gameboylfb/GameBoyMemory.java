@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 //import java.util.logging.Logger;
 
 public class GameBoyMemory {
+
 	//private static final Logger log = Logger.getLogger("Main Log");
 
 	private GameBoyRom rom;
@@ -28,14 +29,14 @@ public class GameBoyMemory {
 		}
 
 		// Copy 32kB cart ROM to beginning of memory (except first 256 bytes)
-		System.arraycopy(rom.romData, 256, memory, 256, 32512);
+		System.arraycopy(rom.getRomData(), 256, memory, 256, 32512);
 		// Copy the DMG ROM to the first 256 bytes of memory
 		System.arraycopy(dmgRom, 0, memory, 0, 256);
 	}
 
 	public void disableDmgRom() {
 		// Overwrite the DMG ROM with the first 256 bytes of the cart ROM
-		System.arraycopy(rom.romData, 0, memory, 0, 256);
+		System.arraycopy(rom.getRomData(), 0, memory, 0, 256);
 	}
 
 	public byte readByte(int addr) {
@@ -56,4 +57,5 @@ public class GameBoyMemory {
 
 		memory[addr] = data;
 	}
+
 }

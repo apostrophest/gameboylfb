@@ -17,26 +17,25 @@ import java.io.IOException;
 import java.io.EOFException;
 
 public class GameBoyRom {
+
 	private static final Logger log = Logger.getLogger("Main Log");
 
-	final byte[] romData;
-	final int romLength;
+	private byte[] romData;
 	private int seekPos = 0;
 
 	// Header variables
-	final byte[] hNintendoLogo = new byte[0x30];
-	final String hGameTitle;
-	final byte hCartridgeType;
-	final byte hRomSizeCode;
-	final byte hRamSizeCode;
-	final byte hComplementCheck;
+	private byte[] headerNintendoLogo = new byte[0x30];
+	private String headerGameTitle;
+	private byte headerCartridgeType;
+	private byte headerRomSizeCode;
+	private byte headerRamSizeCode;
+	private byte headerComplementCheck;
 
 	public GameBoyRom(String fileName) throws IOException, RomInvalidFileException {
 		romData = Files.readAllBytes(Paths.get(fileName));
-		romLength = romData.length;
 
 		// ROM should be exactly 32KB
-		if(romLength != 0x8000) {
+		if(getRomLength() != 0x8000) {
 			throw new RomInvalidFileException("ROM length incorrect.");
 		}
 
@@ -50,16 +49,16 @@ public class GameBoyRom {
 		}
 
 		try {
-			System.arraycopy(romData, 0x104, hNintendoLogo, 0, 0x30);
+			System.arraycopy(romData, 0x104, headerNintendoLogo, 0, 0x30);
 
 			byte[] temp = new byte[0xF];
 			System.arraycopy(romData, 0x134, temp, 0, 0xF);
-			hGameTitle = new String(temp, "US-ASCII");
+			headerGameTitle = new String(temp, "US-ASCII");
 
-			hCartridgeType = romData[0x147];
-			hRomSizeCode = romData[0x148];
-			hRamSizeCode = romData[0x149];
-			hComplementCheck = romData[0x14d];
+			headerCartridgeType = romData[0x147];
+			headerRomSizeCode = romData[0x148];
+			headerRamSizeCode = romData[0x149];
+			headerComplementCheck = romData[0x14d];
 		}
 		catch(Exception ex) {
 			log.log(Level.WARNING, "Unable to set ROM header variables!");
@@ -67,8 +66,8 @@ public class GameBoyRom {
 		}
 
 		// Only supported cartridge type is 0x00 (PLAIN ROM)
-		if(hCartridgeType != 0x00) {
-			throw new RomInvalidFileException("Unsupported cartridge type: " + hCartridgeType);
+		if(headerCartridgeType != 0x00) {
+			throw new RomInvalidFileException("Unsupported cartridge type: " + headerCartridgeType);
 		}
 	}
 
@@ -82,7 +81,7 @@ public class GameBoyRom {
 	}
 
 	public byte getByte() throws EOFException {
-		if(seekPos >= romLength) {
+		if(seekPos >= getRomLength()) {
 			throw new EOFException();
 		}
 		try { return romData[seekPos]; }
@@ -90,7 +89,7 @@ public class GameBoyRom {
 	}
 
 	public byte[] getBytes(int numBytes) throws EOFException {
-		if(numBytes + seekPos > romLength) {
+		if(numBytes + seekPos > getRomLength()) {
 			throw new EOFException();
 		}
 		else {
@@ -98,6 +97,40 @@ public class GameBoyRom {
 			System.arraycopy(romData, seekPos, bytes, 0, numBytes);
 			return bytes;
 		}
+	}
+
+	// Getters
+
+	public byte[] getRomData() {
+		return romData;
+	}
+
+	public int getRomLength() {
+		return romData.length;
+	}
+
+	public byte[] getHeaderNintendoLogo() {
+		return headerNintendoLogo;
+	}
+
+	public String getHeaderGameTitle() {
+		return headerGameTitle;
+	}
+
+	public byte getHeaderCartridgeType() {
+		return headerCartridgeType;
+	}
+
+	public byte getHeaderRomSizeCode() {
+		return headerRomSizeCode;
+	}
+
+	public byte getHeaderRamSizeCode() {
+		return headerRamSizeCode;
+	}
+
+	public byte getHeaderComplementCheck() {
+		return headerComplementCheck;
 	}
 
 }

@@ -31,7 +31,7 @@ public class GameBoyAppLauncher {
 			log.log(Level.SEVERE, ex.toString(), ex);
 		}
 
-		System.out.println(rom.hGameTitle);
+		System.out.println(rom.getHeaderGameTitle());
 
 		try {
 			mem = new GameBoyMemory(rom);
