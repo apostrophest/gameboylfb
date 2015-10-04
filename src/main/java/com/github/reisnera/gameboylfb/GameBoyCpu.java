@@ -20,8 +20,8 @@ public class GameBoyCpu {
 	public static final int MASK_HIGH_BYTE = 0xFF00;
 
 	private static final int CLOCK_FREQ_HZ = 4194304;
-	private static final double VSYNC_FREQ_HZ = 59.73;
-	private static final int CPU_CYCLES_PER_VSYNC = (int) (CLOCK_FREQ_HZ / VSYNC_FREQ_HZ);
+	private static final double VBLANK_FREQ_HZ = 59.73;
+	private static final int CPU_CYCLES_PER_VBLANK = (int) (CLOCK_FREQ_HZ / VBLANK_FREQ_HZ);
 
 	private GameBoyMemory mem;
 	private CpuRegisters reg = new CpuRegisters();
@@ -44,8 +44,8 @@ public class GameBoyCpu {
 		reg.setPC(0);
 	}
 
-	public boolean isReadyForVsync() {
-		if(cycleCounter > CPU_CYCLES_PER_VSYNC)
+	public boolean isReadyForVblank() {
+		if(cycleCounter > CPU_CYCLES_PER_VBLANK)
 			return true;
 		else
 			return false;
@@ -67,7 +67,7 @@ public class GameBoyCpu {
 	}
 
 	private void processOpcode(byte opcode) {
-		int operand1, operand2;
+		int operand;
 
 		// Opcode reference:
 		// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -79,8 +79,8 @@ public class GameBoyCpu {
 				break;
 
 			case 0x01: // LD BC,d16 : 3,12
-				operand2 = mem.readWord(reg.getThenIncPC(2));
-				reg.setBC(operand2);
+				operand = mem.readWord(reg.getThenIncPC(2));
+				reg.setBC(operand);
 				cycleCounter += 12;
 				break;
 
