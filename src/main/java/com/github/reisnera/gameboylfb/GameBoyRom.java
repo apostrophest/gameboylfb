@@ -8,20 +8,17 @@
 
 package com.github.reisnera.gameboylfb;
 
-//import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import java.nio.file.Files;
 import java.io.IOException;
-import java.io.EOFException;
 
 public class GameBoyRom {
 
-	private static final Logger log = Logger.getLogger("Main Log");
+	// private static final Logger log = Logger.getLogger("Main Log");
 
 	private byte[] romData;
-	private int seekPos = 0;
 
 	// Header variables
 	private byte[] headerNintendoLogo = new byte[0x30];
@@ -59,43 +56,13 @@ public class GameBoyRom {
 			headerRomSizeCode = romData[0x148];
 			headerRamSizeCode = romData[0x149];
 			headerComplementCheck = romData[0x14d];
-		}
-		catch(Exception ex) {
-			log.log(Level.WARNING, "Unable to set ROM header variables!");
+		} catch(Exception ex) {
 			throw new RomInvalidFileException("Error setting ROM header variables.", ex);
 		}
 
 		// Only supported cartridge type is 0x00 (PLAIN ROM)
 		if(headerCartridgeType != 0x00) {
 			throw new RomInvalidFileException("Unsupported cartridge type: " + headerCartridgeType);
-		}
-	}
-
-	public void seek(int newPosition) throws RomInvalidPositionException {
-		if(newPosition >= 0 && newPosition < romData.length) {
-			seekPos = newPosition;
-		}
-		else {
-			throw new RomInvalidPositionException(newPosition);
-		}
-	}
-
-	public byte getByte() throws EOFException {
-		if(seekPos >= getRomLength()) {
-			throw new EOFException();
-		}
-		try { return romData[seekPos]; }
-		finally{ seekPos += 1; }
-	}
-
-	public byte[] getBytes(int numBytes) throws EOFException {
-		if(numBytes + seekPos > getRomLength()) {
-			throw new EOFException();
-		}
-		else {
-			byte[] bytes = new byte[numBytes];
-			System.arraycopy(romData, seekPos, bytes, 0, numBytes);
-			return bytes;
 		}
 	}
 
