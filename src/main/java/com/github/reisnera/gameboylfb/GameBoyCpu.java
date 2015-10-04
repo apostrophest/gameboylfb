@@ -14,6 +14,14 @@ package com.github.reisnera.gameboylfb;
 public class GameBoyCpu {
 	//private static final Logger log = Logger.getLogger("Main Log");
 
+	public static final int MASK_BYTE        = 0xFF;
+	public static final int MASK_WORD        = 0xFFFF;
+	public static final int MASK_HIGH_BYTE   = 0xFF00;
+
+	private static final int    CLOCK_FREQ_HZ = 4194304;
+	private static final double VSYNC_FREQ_HZ = 59.73;
+	private static final int    CPU_CYCLES_PER_VSYNC = (int) (CLOCK_FREQ_HZ / VSYNC_FREQ_HZ);
+
 	private GameBoyMemory mem;
 	private CpuRegisters reg = new CpuRegisters();
 
@@ -23,6 +31,7 @@ public class GameBoyCpu {
 	}
 
 	private void initialize() {
+		// These magic numbers are the initialization values of the GB.
 		reg.setAF(0x01B0);
 		reg.setBC(0x0013);
 		reg.setDE(0x00D8);
@@ -32,7 +41,42 @@ public class GameBoyCpu {
 	}
 
 	public void run() {
-		int opcode;
+
+		int cycleCounter;
+		byte opcode;
+		int operand;
+
+		while(true) {
+			for(cycleCounter = 0; cycleCounter <= CPU_CYCLES_PER_VSYNC; ) {
+
+				opcode = mem.readByte(reg.getThenIncPC());
+				switch(opcode) {
+					// NOP - 1,4
+					case 0x00:	cycleCounter += 4;
+								break;
+
+					// LD BC,d16 - 3,12
+					case 0x01:	operand = mem.readWord(reg.getPC());
+								reg.incPC(2);
+								reg.setBC(operand);
+								cycleCounter += 12;
+								break;
+
+					// LD (BC),A - 1,8
+					case 0x02:	mem.writeByte(reg.getA(), reg.getBC());
+								cycleCounter += 8;
+								break;
+
+					// INC BC - 1,8
+					case 0x03:	reg.setBC(reg.getBC() + 1);
+								cycleCounter += 8;
+								break;
+				}
+
+			}
+
+			//TODO: code here will run about once per VSYNC
+		}
 	}
 
 	/**
@@ -41,21 +85,19 @@ public class GameBoyCpu {
 	 * size (either 16 or 8 bits).
 	 */
 	static public class CpuRegisters {
+
+		private static final int MASK_REG_AF      = 0xFFF0;
+		private static final int MASK_FLAG_CY_BIT = 0x10;
+		private static final int MASK_FLAG_H_BIT  = 0x20;
+		private static final int MASK_FLAG_N_BIT  = 0x40;
+		private static final int MASK_FLAG_Z_BIT  = 0x80;
+
 		private int AF;
 		private int BC;
 		private int DE;
 		private int HL;
 		private int SP;
 		private int PC;
-
-		private static final int MASK_REG_AF      = 0xFFF0;
-		private static final int MASK_WORD        = 0xFFFF;
-		private static final int MASK_BYTE        = 0xFF;
-		private static final int MASK_HIGH_BYTE   = 0xFF00;
-		private static final int MASK_FLAG_CY_BIT = 0x10;
-		private static final int MASK_FLAG_H_BIT  = 0x20;
-		private static final int MASK_FLAG_N_BIT  = 0x40;
-		private static final int MASK_FLAG_Z_BIT  = 0x80;
 
 		// Getters for 16-bit registers
 
@@ -81,6 +123,10 @@ public class GameBoyCpu {
 
 		public int getPC() {
 			return PC;
+		}
+
+		public int getThenIncPC() {
+			return PC++;
 		}
 
 		// Setters for 16-bit registers
@@ -109,6 +155,14 @@ public class GameBoyCpu {
 
 		public void setPC(int num16) {
 			PC = num16 & MASK_WORD;
+		}
+
+		public void incPC() {
+			PC += 1;
+		}
+
+		public void incPC(int n) {
+			PC += n;
 		}
 
 		// Methods to get high portions
