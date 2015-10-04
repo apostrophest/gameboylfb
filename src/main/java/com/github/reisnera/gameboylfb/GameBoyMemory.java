@@ -83,15 +83,27 @@ public class GameBoyMemory {
 		return memory[addr];
 	}
 
-	public void writeByte(int data, int addr) throws MemoryRomWriteException {
+	/**
+	 * Read word (two bytes) of little-endian data.
+	 */
+	public int readWord(int addr) {
+		int low, high;
+		low = memory[addr] & GameBoyCpu.MASK_BYTE;
+		high = (memory[addr + 1] & GameBoyCpu.MASK_BYTE) << 8;
+		return (high | low);
+	}
+
+	public void writeByte(int data, int addr) {
 		if(addr < 0x8000) {
-			throw new MemoryRomWriteException(addr);
+			// Attempted write to ROM, which will do nothing.
+			// At least not until implementing switched memory banks...
 		} else if(addr >= 0xE000 && addr < 0xFE00) {
 			// Take into account the mirrored RAM area
 			addr -= 0x2000;
+			memory[addr] = (byte) data;
+		} else {
+			memory[addr] = (byte) data;
 		}
-
-		memory[addr] = (byte)(data & 0xFF);
 	}
 
 }
