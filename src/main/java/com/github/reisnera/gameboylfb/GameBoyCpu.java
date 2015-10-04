@@ -14,6 +14,7 @@ package com.github.reisnera.gameboylfb;
 public class GameBoyCpu {
 	// private static final Logger log = Logger.getLogger("Main Log");
 
+	public static final int MASK_HALF_BYTE = 0xF;
 	public static final int MASK_BYTE = 0xFF;
 	public static final int MASK_WORD = 0xFFFF;
 	public static final int MASK_HIGH_BYTE = 0xFF00;
@@ -24,6 +25,7 @@ public class GameBoyCpu {
 
 	private GameBoyMemory mem;
 	private CpuRegisters reg = new CpuRegisters();
+	private int cycleCounter;
 
 	public GameBoyCpu(GameBoyMemory memory) {
 		this.mem = memory;
@@ -40,42 +42,76 @@ public class GameBoyCpu {
 		reg.setPC(0);
 	}
 
-	public void run() {
+	public boolean isReadyForVsync() {
+		if(cycleCounter > CPU_CYCLES_PER_VSYNC)
+			return true;
+		else
+			return false;
+	}
 
-		int cycleCounter;
+	public void getAndProcessNextOpcode() {
 		byte opcode;
-		int operand;
 
-		while(true) {
-			for(cycleCounter = 0; cycleCounter <= CPU_CYCLES_PER_VSYNC;) {
+		// check and do interrupts
 
-				opcode = mem.readByte(reg.getThenIncPC());
-				switch(opcode) {
-					case 0x00: // NOP - 1,4
-						cycleCounter += 4;
-						break;
+		opcode = mem.readByte(reg.getThenIncPC());
+		cycleCounter += 0; // how many cycles does fetch take?????????
 
-					case 0x01: // LD BC,d16 - 3,12
-						operand = mem.readWord(reg.getPC());
-						reg.incPC(2);
-						reg.setBC(operand);
-						cycleCounter += 12;
-						break;
+		processOpcode(opcode);
 
-					case 0x02: // LD (BC),A - 1,8
-						mem.writeByte(reg.getA(), reg.getBC());
-						cycleCounter += 8;
-						break;
+		// TODO: update timers/counters, update input/output "ports",
+		// LCD, sound ?
+	}
 
-					case 0x03: // INC BC - 1,8
-						reg.setBC(reg.getBC() + 1);
-						cycleCounter += 8;
-						break;
+	private void processOpcode(byte opcode) {
+		int operand1, operand2;
+
+		// Opcode reference:
+		// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+		// Comment format: opcode mnemonic : bytes, cycles : Z N H C
+
+		switch(opcode) {
+			case 0x00: // NOP : 1,4
+				cycleCounter += 4;
+				break;
+
+			case 0x01: // LD BC,d16 : 3,12
+				operand2 = mem.readWord(reg.getThenIncPC(2));
+				reg.setBC(operand2);
+				cycleCounter += 12;
+				break;
+
+			case 0x02: // LD (BC),A : 1,8
+				mem.writeByte(reg.getA(), reg.getBC());
+				cycleCounter += 8;
+				break;
+
+			case 0x03: // INC BC : 1,8
+				reg.setBC(reg.getBC() + 1);
+				cycleCounter += 8;
+				break;
+
+			case 0x04: // INC B : 1,4 : Z 0 H -
+				reg.setB(reg.getB() + 1);
+				// Flags
+				reg.clearFlagN();
+				if(reg.getB() == 0) {
+					reg.setFlagZ();
+					reg.setFlagH();
+				} else if((reg.getB() & MASK_HALF_BYTE) == 0) {
+					reg.setFlagH();
 				}
+				break;
 
-			}
-
-			// TODO: code here will run about once per VSYNC
+			case 0x05: // DEC B : 1,4 : Z 1 H -
+				reg.setB(reg.getB() - 1);
+				// Flags
+				reg.setFlagN();
+				if(reg.getB() == 0)
+					reg.setFlagZ();
+				if((reg.getB() & MASK_HALF_BYTE) == MASK_HALF_BYTE)
+					reg.setFlagH();
+				break;
 		}
 	}
 
@@ -126,7 +162,17 @@ public class GameBoyCpu {
 		}
 
 		public int getThenIncPC() {
-			return PC++;
+			int retVal = PC;
+			PC += 1;
+			PC &= MASK_WORD;
+			return retVal;
+		}
+
+		public int getThenIncPC(int n) {
+			int retVal = PC;
+			PC += n;
+			PC &= MASK_WORD;
+			return retVal;
 		}
 
 		// Setters for 16-bit registers
@@ -159,10 +205,12 @@ public class GameBoyCpu {
 
 		public void incPC() {
 			PC += 1;
+			PC &= MASK_WORD;
 		}
 
 		public void incPC(int n) {
 			PC += n;
+			PC &= MASK_WORD;
 		}
 
 		// Methods to get high portions
@@ -244,10 +292,10 @@ public class GameBoyCpu {
 		// Carry flag related methods
 
 		public boolean isSetCy() {
-			if((AF & MASK_FLAG_CY_BIT) == MASK_FLAG_CY_BIT)
-				return true;
-			else
+			if((AF & MASK_FLAG_CY_BIT) == 0)
 				return false;
+			else
+				return true;
 		}
 
 		public void setFlagCy() {

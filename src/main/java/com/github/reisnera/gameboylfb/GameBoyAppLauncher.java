@@ -19,6 +19,7 @@ public class GameBoyAppLauncher {
 
 	static GameBoyRom rom = null;
 	static GameBoyMemory mem = null;
+	static GameBoyCpu cpu = null;
 
 	public static void main(String[] args) {
 		configureLogging();
@@ -38,10 +39,9 @@ public class GameBoyAppLauncher {
 			log.log(Level.SEVERE, ex.toString(), ex);
 		}
 
-		// testing...
-		System.out.println(String.format("%x", mem.readByte(0)));
-		mem.disableDmgRom();
-		System.out.println(String.format("%x", mem.readByte(0)));
+		cpu = new GameBoyCpu(mem);
+
+		run();
 	}
 
 	private static void configureLogging() {
@@ -53,5 +53,9 @@ public class GameBoyAppLauncher {
 		} catch(IOException ex) {
 			log.log(Level.WARNING, "Unable to open log file for writing!");
 		}
+	}
+
+	private static void run() {
+		// main loop goes here
 	}
 }
