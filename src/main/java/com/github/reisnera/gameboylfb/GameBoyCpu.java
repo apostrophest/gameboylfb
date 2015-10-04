@@ -25,6 +25,8 @@ public class GameBoyCpu {
 
 	private GameBoyMemory mem;
 	private CpuRegisters reg = new CpuRegisters();
+	private boolean interruptMasterEnableFlag; // TODO: initial value?
+
 	private int cycleCounter;
 
 	public GameBoyCpu(GameBoyMemory memory) {
@@ -50,17 +52,18 @@ public class GameBoyCpu {
 	}
 
 	public void getAndProcessNextOpcode() {
+		if(interruptMasterEnableFlag == true) {
+			doInterrupts();
+		}
+
 		byte opcode;
-
-		// check and do interrupts
-
 		opcode = mem.readByte(reg.getThenIncPC());
 		cycleCounter += 0; // how many cycles does fetch take?????????
 
 		processOpcode(opcode);
 
-		// TODO: update timers/counters, update input/output "ports",
-		// LCD, sound ?
+		// TODO: update timers/counters, update input/output "ports", interrupt
+		// flags, LCD, sound ?
 	}
 
 	private void processOpcode(byte opcode) {
@@ -113,6 +116,10 @@ public class GameBoyCpu {
 					reg.setFlagH();
 				break;
 		}
+	}
+
+	private void doInterrupts() {
+		// process any interrupts
 	}
 
 	/**
