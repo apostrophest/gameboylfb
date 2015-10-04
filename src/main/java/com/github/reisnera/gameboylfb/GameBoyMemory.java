@@ -88,8 +88,10 @@ public class GameBoyMemory {
 	 */
 	public int readWord(int addr) {
 		int low, high;
-		low = memory[addr] & GameBoyCpu.MASK_BYTE;
-		high = (memory[addr + 1] & GameBoyCpu.MASK_BYTE) << 8;
+		// Read both bytes and bitwise AND with byte mask to prevent sign
+		//   extension with int conversion.
+		low = readByte(addr) & GameBoyCpu.MASK_BYTE;
+		high = (readByte(addr + 1) & GameBoyCpu.MASK_BYTE) << 8;
 		return (high | low);
 	}
 
