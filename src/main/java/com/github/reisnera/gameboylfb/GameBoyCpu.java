@@ -12,15 +12,15 @@ package com.github.reisnera.gameboylfb;
 //import java.util.logging.Level
 
 public class GameBoyCpu {
-	//private static final Logger log = Logger.getLogger("Main Log");
+	// private static final Logger log = Logger.getLogger("Main Log");
 
-	public static final int MASK_BYTE        = 0xFF;
-	public static final int MASK_WORD        = 0xFFFF;
-	public static final int MASK_HIGH_BYTE   = 0xFF00;
+	public static final int MASK_BYTE = 0xFF;
+	public static final int MASK_WORD = 0xFFFF;
+	public static final int MASK_HIGH_BYTE = 0xFF00;
 
-	private static final int    CLOCK_FREQ_HZ = 4194304;
+	private static final int CLOCK_FREQ_HZ = 4194304;
 	private static final double VSYNC_FREQ_HZ = 59.73;
-	private static final int    CPU_CYCLES_PER_VSYNC = (int) (CLOCK_FREQ_HZ / VSYNC_FREQ_HZ);
+	private static final int CPU_CYCLES_PER_VSYNC = (int) (CLOCK_FREQ_HZ / VSYNC_FREQ_HZ);
 
 	private GameBoyMemory mem;
 	private CpuRegisters reg = new CpuRegisters();
@@ -47,35 +47,35 @@ public class GameBoyCpu {
 		int operand;
 
 		while(true) {
-			for(cycleCounter = 0; cycleCounter <= CPU_CYCLES_PER_VSYNC; ) {
+			for(cycleCounter = 0; cycleCounter <= CPU_CYCLES_PER_VSYNC;) {
 
 				opcode = mem.readByte(reg.getThenIncPC());
 				switch(opcode) {
-					// NOP - 1,4
-					case 0x00:	cycleCounter += 4;
-								break;
+					case 0x00: // NOP - 1,4
+						cycleCounter += 4;
+						break;
 
-					// LD BC,d16 - 3,12
-					case 0x01:	operand = mem.readWord(reg.getPC());
-								reg.incPC(2);
-								reg.setBC(operand);
-								cycleCounter += 12;
-								break;
+					case 0x01: // LD BC,d16 - 3,12
+						operand = mem.readWord(reg.getPC());
+						reg.incPC(2);
+						reg.setBC(operand);
+						cycleCounter += 12;
+						break;
 
-					// LD (BC),A - 1,8
-					case 0x02:	mem.writeByte(reg.getA(), reg.getBC());
-								cycleCounter += 8;
-								break;
+					case 0x02: // LD (BC),A - 1,8
+						mem.writeByte(reg.getA(), reg.getBC());
+						cycleCounter += 8;
+						break;
 
-					// INC BC - 1,8
-					case 0x03:	reg.setBC(reg.getBC() + 1);
-								cycleCounter += 8;
-								break;
+					case 0x03: // INC BC - 1,8
+						reg.setBC(reg.getBC() + 1);
+						cycleCounter += 8;
+						break;
 				}
 
 			}
 
-			//TODO: code here will run about once per VSYNC
+			// TODO: code here will run about once per VSYNC
 		}
 	}
 
@@ -86,11 +86,11 @@ public class GameBoyCpu {
 	 */
 	static public class CpuRegisters {
 
-		private static final int MASK_REG_AF      = 0xFFF0;
+		private static final int MASK_REG_AF = 0xFFF0;
 		private static final int MASK_FLAG_CY_BIT = 0x10;
-		private static final int MASK_FLAG_H_BIT  = 0x20;
-		private static final int MASK_FLAG_N_BIT  = 0x40;
-		private static final int MASK_FLAG_Z_BIT  = 0x80;
+		private static final int MASK_FLAG_H_BIT = 0x20;
+		private static final int MASK_FLAG_N_BIT = 0x40;
+		private static final int MASK_FLAG_Z_BIT = 0x80;
 
 		private int AF;
 		private int BC;

@@ -26,8 +26,7 @@ public class GameBoyAppLauncher {
 		// Load a Game Boy ROM
 		try {
 			rom = new GameBoyRom("../Alleyway.gb");
-		}
-		catch(Exception ex) {
+		} catch(Exception ex) {
 			log.log(Level.SEVERE, ex.toString(), ex);
 		}
 
@@ -35,8 +34,7 @@ public class GameBoyAppLauncher {
 
 		try {
 			mem = new GameBoyMemory(rom);
-		}
-		catch(Exception ex) {
+		} catch(Exception ex) {
 			log.log(Level.SEVERE, ex.toString(), ex);
 		}
 
@@ -52,8 +50,7 @@ public class GameBoyAppLauncher {
 			FileHandler fh = new FileHandler("./LogFile.txt");
 			log.addHandler(fh);
 			fh.setFormatter(new SimpleFormatter());
-		}
-		catch(IOException ex) {
+		} catch(IOException ex) {
 			log.log(Level.WARNING, "Unable to open log file for writing!");
 		}
 	}
