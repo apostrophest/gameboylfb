@@ -19,6 +19,20 @@ public class GameBoyCpu {
 
 	public GameBoyCpu(GameBoyMemory memory) {
 		this.mem = memory;
+		initialize();
+	}
+
+	private void initialize() {
+		reg.setAF(0x01B0);
+		reg.setBC(0x0013);
+		reg.setDE(0x00D8);
+		reg.setHL(0x014D);
+		reg.setSP(0xFFFE);
+		reg.setPC(0);
+	}
+
+	public void run() {
+		int opcode;
 	}
 
 	/**
@@ -34,23 +48,37 @@ public class GameBoyCpu {
 		private int SP;
 		private int PC;
 
+		private static final int MASK_REG_AF      = 0xFFF0;
+		private static final int MASK_WORD        = 0xFFFF;
+		private static final int MASK_BYTE        = 0xFF;
+		private static final int MASK_HIGH_BYTE   = 0xFF00;
+		private static final int MASK_FLAG_CY_BIT = 0x10;
+		private static final int MASK_FLAG_H_BIT  = 0x20;
+		private static final int MASK_FLAG_N_BIT  = 0x40;
+		private static final int MASK_FLAG_Z_BIT  = 0x80;
+
 		// Getters for 16-bit registers
 
 		public int getAF() {
 			return AF;
 		}
+
 		public int getBC() {
 			return BC;
 		}
+
 		public int getDE() {
 			return DE;
 		}
+
 		public int getHL() {
 			return HL;
 		}
+
 		public int getSP() {
 			return SP;
 		}
+
 		public int getPC() {
 			return PC;
 		}
@@ -58,23 +86,29 @@ public class GameBoyCpu {
 		// Setters for 16-bit registers
 
 		public void setAF(int num16) {
-			// NB: The first 4 bits of the flags portion of AF are cleared no matter what
-			AF = num16 & 0xFFF0;
+			// NB: The first 4 bits of the flags portion of AF are cleared no
+			// matter what
+			AF = num16 & MASK_REG_AF;
 		}
+
 		public void setBC(int num16) {
-			BC = num16 & 0xFFFF;
+			BC = num16 & MASK_WORD;
 		}
+
 		public void setDE(int num16) {
-			DE = num16 & 0xFFFF;
+			DE = num16 & MASK_WORD;
 		}
+
 		public void setHL(int num16) {
-			HL = num16 & 0xFFFF;
+			HL = num16 & MASK_WORD;
 		}
+
 		public void setSP(int num16) {
-			SP = num16 & 0xFFFF;
+			SP = num16 & MASK_WORD;
 		}
+
 		public void setPC(int num16) {
-			PC = num16 & 0xFFFF;
+			PC = num16 & MASK_WORD;
 		}
 
 		// Methods to get high portions
@@ -82,12 +116,15 @@ public class GameBoyCpu {
 		public int getA() {
 			return AF >>> 8;
 		}
+
 		public int getB() {
 			return BC >>> 8;
 		}
+
 		public int getD() {
 			return DE >>> 8;
 		}
+
 		public int getH() {
 			return HL >>> 8;
 		}
@@ -95,110 +132,127 @@ public class GameBoyCpu {
 		// Methods to set high portions
 
 		public void setA(int num8) {
-			num8 &= 0xFF;
-			AF = (AF & 0xFF) | (num8 << 8);
+			num8 &= MASK_BYTE;
+			AF = (AF & MASK_BYTE) | (num8 << 8);
 		}
+
 		public void setB(int num8) {
-			num8 &= 0xFF;
-			BC = (BC & 0xFF) | (num8 << 8);
+			num8 &= MASK_BYTE;
+			BC = (BC & MASK_BYTE) | (num8 << 8);
 		}
+
 		public void setD(int num8) {
-			num8 &= 0xFF;
-			DE = (DE & 0xFF) | (num8 << 8);
+			num8 &= MASK_BYTE;
+			DE = (DE & MASK_BYTE) | (num8 << 8);
 		}
+
 		public void setH(int num8) {
-			num8 &= 0xFF;
-			HL = (HL & 0xFF) | (num8 << 8);
+			num8 &= MASK_BYTE;
+			HL = (HL & MASK_BYTE) | (num8 << 8);
 		}
 
 		// Methods to get low portions
 
 		public int getF() {
-			return AF & 0xFF;
+			return AF & MASK_BYTE;
 		}
+
 		public int getC() {
-			return BC & 0xFF;
+			return BC & MASK_BYTE;
 		}
+
 		public int getE() {
-			return DE & 0xFF;
+			return DE & MASK_BYTE;
 		}
+
 		public int getL() {
-			return HL & 0xFF;
+			return HL & MASK_BYTE;
 		}
 
 		// Methods to set low portions
 
 		public void setF(int num8) {
-			AF = (AF & 0xFF00) | (num8 & 0xFF);
+			AF = (AF & MASK_HIGH_BYTE) | (num8 & MASK_BYTE);
 		}
+
 		public void setC(int num8) {
-			BC = (BC & 0xFF00) | (num8 & 0xFF);
+			BC = (BC & MASK_HIGH_BYTE) | (num8 & MASK_BYTE);
 		}
+
 		public void setE(int num8) {
-			DE = (DE & 0xFF00) | (num8 & 0xFF);
+			DE = (DE & MASK_HIGH_BYTE) | (num8 & MASK_BYTE);
 		}
+
 		public void setL(int num8) {
-			HL = (HL & 0xFF00) | (num8 & 0xFF);
+			HL = (HL & MASK_HIGH_BYTE) | (num8 & MASK_BYTE);
 		}
 
 		// Carry flag related methods
 
 		public boolean isSetCy() {
-			if((AF & 0x10) == 0x10)
+			if((AF & MASK_FLAG_CY_BIT) == MASK_FLAG_CY_BIT)
 				return true;
 			else
 				return false;
 		}
+
 		public void setFlagCy() {
-			AF |= 0x10;
+			AF |= MASK_FLAG_CY_BIT;
 		}
+
 		public void clearFlagCy() {
-			AF &= ~0x10;
+			AF &= ~MASK_FLAG_CY_BIT;
 		}
 
 		// Half carry (BCD) flag related methods
 
 		public boolean isSetH() {
-			if((AF & 0x20) == 0x20)
-				return true;
-			else
+			if((AF & MASK_FLAG_H_BIT) == 0)
 				return false;
+			else
+				return true;
 		}
+
 		public void setFlagH() {
-			AF |= 0x20;
+			AF |= MASK_FLAG_H_BIT;
 		}
+
 		public void clearFlagH() {
-			AF &= ~0x20;
+			AF &= ~MASK_FLAG_H_BIT;
 		}
 
 		// Add/Sub (BCD) flag related methods
 
 		public boolean isSetN() {
-			if((AF & 0x40) == 0x40)
-				return true;
-			else
+			if((AF & MASK_FLAG_N_BIT) == 0)
 				return false;
+			else
+				return true;
 		}
+
 		public void setFlagN() {
-			AF |= 0x40;
+			AF |= MASK_FLAG_N_BIT;
 		}
+
 		public void clearFlagN() {
-			AF &= ~0x40;
+			AF &= ~MASK_FLAG_N_BIT;
 		}
 
 		// Zero flag related methods
 
 		public boolean isSetZ() {
-			if((AF & 0x80) == 0x80)
-				return true;
-			else
+			if((AF & MASK_FLAG_Z_BIT) == 0)
 				return false;
+			else
+				return true;
 		}
+
 		public void setFlagZ() {
-			AF |= 0x80;
+			AF |= MASK_FLAG_Z_BIT;
 		}
+
 		public void clearFlagZ() {
-			AF &= ~0x80;
+			AF &= ~MASK_FLAG_Z_BIT;
 		}
 	}
 }

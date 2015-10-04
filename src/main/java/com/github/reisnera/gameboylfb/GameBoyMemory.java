@@ -32,6 +32,42 @@ public class GameBoyMemory {
 		System.arraycopy(rom.getRomData(), 256, memory, 256, 32512);
 		// Copy the DMG ROM to the first 256 bytes of memory
 		System.arraycopy(dmgRom, 0, memory, 0, 256);
+
+		initialize();
+	}
+
+	private void initialize() {
+		memory[0xFF05] = (byte)0x00; // TIMA
+		memory[0xFF06] = (byte)0x00; // TMA
+		memory[0xFF07] = (byte)0x00; // TAC
+		memory[0xFF10] = (byte)0x80; // NR10
+		memory[0xFF11] = (byte)0xBF; // NR11
+		memory[0xFF12] = (byte)0xF3; // NR12
+		memory[0xFF14] = (byte)0xBF; // NR14
+		memory[0xFF16] = (byte)0x3F; // NR21
+		memory[0xFF17] = (byte)0x00; // NR22
+		memory[0xFF19] = (byte)0xBF; // NR24
+		memory[0xFF1A] = (byte)0x7F; // NR30
+		memory[0xFF1B] = (byte)0xFF; // NR31
+		memory[0xFF1C] = (byte)0x9F; // NR32
+		memory[0xFF1E] = (byte)0xBF; // NR33
+		memory[0xFF20] = (byte)0xFF; // NR41
+		memory[0xFF21] = (byte)0x00; // NR42
+		memory[0xFF22] = (byte)0x00; // NR43
+		memory[0xFF23] = (byte)0xBF; // NR30
+		memory[0xFF24] = (byte)0x77; // NR50
+		memory[0xFF25] = (byte)0xF3; // NR51
+		memory[0xFF26] = (byte)0xF1; // NR52
+		memory[0xFF40] = (byte)0x91; // LCDC
+		memory[0xFF42] = (byte)0x00; // SCY
+		memory[0xFF43] = (byte)0x00; // SCX
+		memory[0xFF45] = (byte)0x00; // LYC
+		memory[0xFF47] = (byte)0xFC; // BGP
+		memory[0xFF48] = (byte)0xFF; // OBP0
+		memory[0xFF49] = (byte)0xFF; // OBP1
+		memory[0xFF4A] = (byte)0x00; // WY
+		memory[0xFF4B] = (byte)0x00; // WX
+		memory[0xFFFF] = (byte)0x00; // IE
 	}
 
 	public void disableDmgRom() {
@@ -47,7 +83,7 @@ public class GameBoyMemory {
 		return memory[addr];
 	}
 
-	public void writeByte(byte data, int addr) throws MemoryRomWriteException {
+	public void writeByte(int data, int addr) throws MemoryRomWriteException {
 		if(addr < 0x8000) {
 			throw new MemoryRomWriteException(addr);
 		} else if(addr >= 0xE000 && addr < 0xFE00) {
@@ -55,7 +91,7 @@ public class GameBoyMemory {
 			addr -= 0x2000;
 		}
 
-		memory[addr] = data;
+		memory[addr] = (byte)(data & 0xFF);
 	}
 
 }
