@@ -24,7 +24,7 @@ public class GameBoyCpu {
 	private static final int CPU_CYCLES_PER_VBLANK = (int) (CLOCK_FREQ_HZ / VBLANK_FREQ_HZ);
 
 	private GameBoyMemory mem;
-	private CpuRegisters reg = new CpuRegisters();
+	CpuRegisters reg = new CpuRegisters();
 	private boolean interruptMasterEnableFlag; // TODO: initial value?
 
 	private int cycleCounter;
@@ -120,6 +120,10 @@ public class GameBoyCpu {
 
 	private void doInterrupts() {
 		// process any interrupts
+	}
+
+	public CpuRegisters getReg() {
+		return reg;
 	}
 
 	/**

@@ -16,6 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<lwjgl.version>3.0.0a</lwjgl.version>
+		<powermock.version>1.6.3</powermock.version>
 	</properties>
 
 	<profiles>
@@ -183,5 +184,23 @@
 			<version>6.9.6</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.10.19</version>
+			<scope>test</scope>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.powermock</groupId> -->
+<!-- 			<artifactId>powermock-api-mockito</artifactId> -->
+<!-- 			<version>${powermock.version}</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.powermock</groupId> -->
+<!-- 			<artifactId>powermock-module-testng</artifactId> -->
+<!-- 			<version>${powermock.version}</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>
