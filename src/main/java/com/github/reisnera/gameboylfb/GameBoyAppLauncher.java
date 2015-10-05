@@ -20,6 +20,7 @@ public class GameBoyAppLauncher {
 	static GameBoyRom rom = null;
 	static GameBoyMemory mem = null;
 	static GameBoyCpu cpu = null;
+	static App video = null;
 
 	public static void main(String[] args) {
 		configureLogging();
@@ -42,6 +43,18 @@ public class GameBoyAppLauncher {
 		cpu = new GameBoyCpu(mem);
 
 		run();
+
+		// testing...
+		System.out.println(String.format("%x", mem.readByte(0)));
+		mem.disableDmgRom();
+		System.out.println(String.format("%x", mem.readByte(0)));
+
+		video = new App();
+
+		while (video.tick() == 0) {
+			// TODO: More
+			continue;
+		}
 	}
 
 	private static void configureLogging() {
