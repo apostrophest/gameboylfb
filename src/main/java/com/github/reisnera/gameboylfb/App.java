@@ -24,12 +24,12 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.system.MemoryUtil;
 
 public class App {
-    private static final Logger log = Logger.getLogger("Main Log");
+    private static final Logger LOG = Logger.getLogger(App.class.getName());
     private GLFWErrorCallback errorCallback;
     private GLFWKeyCallback keyCallback;
     private long window;
-    private int WIDTH = 160;
-    private int HEIGHT = 144;
+    private static final int WIDTH = 160;
+    private static final int HEIGHT = 144;
 
     public App() {
         // Set up error callback

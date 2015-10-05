@@ -15,21 +15,22 @@ import java.util.logging.SimpleFormatter;
 import java.io.IOException;
 
 public class GameBoyAppLauncher {
-	private static final Logger log = Logger.getLogger("Main Log");
+	private static final Logger LOG = Logger.getLogger(GameBoyAppLauncher.class.getName());
 
-	static GameBoyRom rom = null;
-	static GameBoyMemory mem = null;
-	static GameBoyCpu cpu = null;
-	static App video = null;
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		configureLogging();
+
+		GameBoyRom rom;
+		GameBoyMemory mem;
+		GameBoyCpu cpu;
+		App app;
 
 		// Load a Game Boy ROM
 		try {
 			rom = new GameBoyRom("../Alleyway.gb");
 		} catch(Exception ex) {
-			log.log(Level.SEVERE, ex.toString(), ex);
+			LOG.log(Level.SEVERE, ex.toString(), ex);
+			throw new Exception(ex);
 		}
 
 		System.out.println(rom.getHeaderGameTitle());
@@ -37,7 +38,8 @@ public class GameBoyAppLauncher {
 		try {
 			mem = new GameBoyMemory(rom);
 		} catch(Exception ex) {
-			log.log(Level.SEVERE, ex.toString(), ex);
+			LOG.log(Level.SEVERE, ex.toString(), ex);
+			throw new Exception(ex);
 		}
 
 		cpu = new GameBoyCpu(mem);
@@ -49,22 +51,22 @@ public class GameBoyAppLauncher {
 		mem.disableDmgRom();
 		System.out.println(String.format("%x", mem.readByte(0)));
 
-		video = new App();
+		app = new App();
 
-		while (video.tick() == 0) {
+		while (app.tick() == 0) {
 			// TODO: More
 			continue;
 		}
 	}
 
 	private static void configureLogging() {
-		log.setLevel(Level.INFO);
+		LOG.setLevel(Level.INFO);
 		try {
 			FileHandler fh = new FileHandler("./LogFile.txt");
-			log.addHandler(fh);
+			LOG.addHandler(fh);
 			fh.setFormatter(new SimpleFormatter());
 		} catch(IOException ex) {
-			log.log(Level.WARNING, "Unable to open log file for writing!");
+			LOG.log(Level.WARNING, "Unable to open log file for writing!");
 		}
 	}
 
