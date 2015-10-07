@@ -75,12 +75,12 @@ public class GameBoyMemory {
 		System.arraycopy(rom.getRomData(), 0, memory, 0, 256);
 	}
 
-	public byte readByte(int addr) {
+	public int readByte(int addr) {
 		// Take into account the mirrored RAM area
 		if(addr >= 0xE000 && addr < 0xFE00) {
 			addr -= 0x2000;
 		}
-		return memory[addr];
+		return memory[addr] & GameBoyCpu.MASK_BYTE;
 	}
 
 	/**

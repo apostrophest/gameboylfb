@@ -56,7 +56,7 @@ public class GameBoyCpu {
 			doInterrupts();
 		}
 
-		byte opcode;
+		int opcode;
 		opcode = mem.readByte(reg.getThenIncPC());
 		cycleCounter += 0; // how many cycles does fetch take?????????
 
@@ -66,7 +66,7 @@ public class GameBoyCpu {
 		// flags, LCD, sound ?
 	}
 
-	private void processOpcode(byte opcode) {
+	void processOpcode(int opcode) {
 		int operand;
 
 		// Opcode reference:
