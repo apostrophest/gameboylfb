@@ -8,37 +8,35 @@
 - At the moment, I am only focusing on implementing support for ROM-only
   cartridges. An example is the game Alleyway (one of the GB release games).
 
-### How to Build and Run
-It's easy as pie! Unless I misconfigured the maven build...
+### How to Build and Run on the Command Line
 
 - To compile: `mvn compile`
-- To compile and test: `mvn test`
+- To compile and run tests: `mvn test`
 - To run: `mvn exec:exec` (NB: this will not try to compile the project)
 
-You can also do `mvn package` to compile and package stuff into a jar! Only
-gameboylfb items will be packaged into the jar; libraries and natives will not
-be included.
+During the compile phase of a `compile` or `test` maven will copy the lwjgl
+jar files and native runtimes to the target/lib directory and the
+target/natives directory respectively.
 
-During the compile phase of a `compile`, `test`, or `package`, maven will
-copy the lwjgl jar files and native runtimes to the target/lib directory and
-the target/natives directory respectively.
+### Using an IDE
+
+I have tried importing the project in both Eclipse and IntelliJ IDEA. The main
+thing to remember is that the target directory and libraries/natives will not
+exist until a `mvn compile` phase is run. You will need to specify the path to
+the lwjgl natives in your IDE run configurations as well.
+
+Otherwise, the IDE should be able to handle everything after that.
 
 ### How to manually run after compiling
-In Linux, from the base directory, enter the 'target' directory that is
-generated after a `mvn compile` and do:
+In Linux, in the base directory, the following should work:
 
-`java -cp "classes:lib/*" com.github.reisnera.gameboylfb.HelloWorld`
+`java -cp 'target/lib/*;target/classes' -Djava.library.path=target/natives com.github.reisnera.gameboylfb.GameBoyAppLauncher`
 
 In Windows, do the same thing as in linux, except that the colon changes to a
 semicolon, and you have to put quotes around the -D option (at least in Power-
 Shell):
 
-`java -cp "classes;lib/*" com.github.reisnera.gameboylfb.HelloWorld`
-
-To manually run the jar is easier since it is configured with the classpath by
-default. From the 'target' directory after a `mvn package`:
-
-`java -jar gameboylfb-1.0.0-alpha-SNAPSHOT.jar`
+`java -cp 'target\lib\*;target\classes' -D'java.library.path=target\natives' com.github.reisnera.gameboylfb.GameBoyAppLauncher`
 
 ### License
  GameBoyLFB - A Java Game Boy emulator.

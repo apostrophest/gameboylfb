@@ -23,7 +23,7 @@ public class GameBoyMemory {
 	public GameBoyMemory(GameBoyRom rom) throws IOException, MemoryBadDmgRomException {
 		this.rom = rom;
 
-		byte[] dmgRom = Files.readAllBytes(Paths.get("../DMG_ROM.bin"));
+		byte[] dmgRom = Files.readAllBytes(Paths.get("DMG_ROM.bin"));
 		if(dmgRom.length != 256) {
 			throw new MemoryBadDmgRomException("Invalid DMG ROM length.");
 		}

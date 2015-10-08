@@ -1,5 +1,7 @@
 # Based on files from https://github.com/github/gitignore
 
+LogFile.txt
+
 # Game Boy internal/external ROMs
 *.gb
 *.bin
@@ -46,3 +48,4 @@ local.properties
 # IntelliJ IDEA
 *.iml
 .idea
+

@@ -27,7 +27,7 @@ public class GameBoyAppLauncher {
 
 		// Load a Game Boy ROM
 		try {
-			rom = new GameBoyRom("../Alleyway.gb");
+			rom = new GameBoyRom("Alleyway.gb");
 		} catch(Exception ex) {
 			LOG.log(Level.SEVERE, ex.toString(), ex);
 			throw new Exception(ex);
