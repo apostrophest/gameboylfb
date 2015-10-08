@@ -10,37 +10,37 @@ package com.github.reisnera.gameboylfb;
 
 public class RomInvalidPositionException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final int requestedRomPosition;
+    private final int requestedRomPosition;
 
-	public RomInvalidPositionException(int requestedRomPosition) {
-		super();
-		this.requestedRomPosition = requestedRomPosition;
-	}
+    public RomInvalidPositionException(int requestedRomPosition) {
+        super();
+        this.requestedRomPosition = requestedRomPosition;
+    }
 
-	public RomInvalidPositionException(int requestedRomPosition, String message) {
-		super(message);
-		this.requestedRomPosition = requestedRomPosition;
-	}
+    public RomInvalidPositionException(int requestedRomPosition, String message) {
+        super(message);
+        this.requestedRomPosition = requestedRomPosition;
+    }
 
-	public RomInvalidPositionException(int requestedRomPosition, Throwable cause) {
-		super(cause);
-		this.requestedRomPosition = requestedRomPosition;
-	}
+    public RomInvalidPositionException(int requestedRomPosition, Throwable cause) {
+        super(cause);
+        this.requestedRomPosition = requestedRomPosition;
+    }
 
-	public RomInvalidPositionException(int requestedRomPosition, String message, Throwable cause) {
-		super(message, cause);
-		this.requestedRomPosition = requestedRomPosition;
-	}
+    public RomInvalidPositionException(int requestedRomPosition, String message, Throwable cause) {
+        super(message, cause);
+        this.requestedRomPosition = requestedRomPosition;
+    }
 
-	public RomInvalidPositionException(int requestedRomPosition, String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-		this.requestedRomPosition = requestedRomPosition;
-	}
+    public RomInvalidPositionException(int requestedRomPosition, String message, Throwable cause,
+                                       boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.requestedRomPosition = requestedRomPosition;
+    }
 
-	public int getRequestedRomPosition() {
-		return requestedRomPosition;
-	}
+    public int getRequestedRomPosition() {
+        return requestedRomPosition;
+    }
 }

@@ -10,26 +10,26 @@ package com.github.reisnera.gameboylfb;
 
 public class MemoryBadDmgRomException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public MemoryBadDmgRomException() {
-	}
+    public MemoryBadDmgRomException() {
+    }
 
-	public MemoryBadDmgRomException(String message) {
-		super(message);
-	}
+    public MemoryBadDmgRomException(String message) {
+        super(message);
+    }
 
-	public MemoryBadDmgRomException(Throwable cause) {
-		super(cause);
-	}
+    public MemoryBadDmgRomException(Throwable cause) {
+        super(cause);
+    }
 
-	public MemoryBadDmgRomException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public MemoryBadDmgRomException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public MemoryBadDmgRomException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
+    public MemoryBadDmgRomException(String message, Throwable cause, boolean enableSuppression,
+                                    boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 
 }

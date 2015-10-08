@@ -81,7 +81,6 @@ public class App {
     }
 
     /**
-     *
      * @return Returns 0 if everything ran fine, otherwise returns 1 if the program should exit
      */
     public int tick() {
