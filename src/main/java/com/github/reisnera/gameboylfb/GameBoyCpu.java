@@ -8,11 +8,11 @@
 
 package com.github.reisnera.gameboylfb;
 
-//import java.util.logging.Logger;
-//import java.util.logging.Level
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class GameBoyCpu {
-    // private static final Logger log = Logger.getLogger("Main Log");
+    private static final Logger LOG = Logger.getLogger(GameBoyCpu.class.getName());
 
     public static final int MASK_HALF_BYTE = 0xF;
     public static final int MASK_BYTE = 0xFF;
@@ -132,6 +132,14 @@ public class GameBoyCpu {
                 operand = mem.readByte(reg.getThenIncPC());
                 reg.setB(operand);
                 cycleCounter += 8;
+                break;
+
+            case 0x07: // RLCA : 1,4 : 0 0 0 C
+                break;
+
+            default: // Unimplemented opcode
+                LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
+                System.exit(1);
                 break;
         }
     }
