@@ -96,34 +96,48 @@ public class GameBoyCpu {
 
             case 0x04: // INC B : 1,4 : Z 0 H -
                 reg.setB(reg.getB() + 1);
+                cycleCounter += 4;
                 // Flags
                 reg.clearFlagN();
                 if (reg.getB() == 0) {
                     reg.setFlagZ();
                     reg.setFlagH();
                 } else if ((reg.getB() & MASK_HALF_BYTE) == 0) {
+                    reg.clearFlagZ();
                     reg.setFlagH();
+                } else {
+                    reg.clearFlagZ();
+                    reg.clearFlagH();
                 }
                 break;
 
             case 0x05: // DEC B : 1,4 : Z 1 H -
                 reg.setB(reg.getB() - 1);
+                cycleCounter += 4;
                 // Flags
                 reg.setFlagN();
-                if (reg.getB() == 0)
+                if (reg.getB() == 0) {
                     reg.setFlagZ();
-                if ((reg.getB() & MASK_HALF_BYTE) == MASK_HALF_BYTE)
+                    reg.clearFlagH();
+                } else if ((reg.getB() & MASK_HALF_BYTE) == MASK_HALF_BYTE) {
+                    reg.clearFlagZ();
                     reg.setFlagH();
+                } else {
+                    reg.clearFlagZ();
+                    reg.clearFlagH();
+                }
+                break;
+
+            case 0x06: // LD B,d8 : 2,8
+                operand = mem.readByte(reg.getThenIncPC());
+                reg.setB(operand);
+                cycleCounter += 8;
                 break;
         }
     }
 
     private void doInterrupts() {
         // process any interrupts
-    }
-
-    public CpuRegisters getReg() {
-        return reg;
     }
 
     /**
