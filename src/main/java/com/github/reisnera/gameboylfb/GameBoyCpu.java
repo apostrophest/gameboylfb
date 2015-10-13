@@ -135,6 +135,9 @@ public class GameBoyCpu {
                 break;
 
             case 0x07: // RLCA : 1,4 : 0 0 0 C
+                operand = rotateLeftAndSetFlags(reg.getA());
+                reg.setA(operand);
+                cycleCounter += 4;
                 break;
 
             default: // Unimplemented opcode
@@ -146,6 +149,24 @@ public class GameBoyCpu {
 
     private void doInterrupts() {
         // process any interrupts
+    }
+
+    // Opcode helper functions
+
+    private int rotateLeftAndSetFlags(int num8) {
+        int mostSigBit = (1 << 7) & num8;
+        num8 = (num8 << 1) & MASK_BYTE;
+        num8 |= (mostSigBit >>> 7);
+        reg.clearFlagZ();
+        reg.clearFlagN();
+        reg.clearFlagH();
+
+        if (mostSigBit == 0)
+            reg.clearFlagCy();
+        else if (mostSigBit == (1 << 7))
+            reg.setFlagCy();
+
+        return num8;
     }
 
     /**

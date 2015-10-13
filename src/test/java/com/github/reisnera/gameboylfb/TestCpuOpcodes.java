@@ -204,4 +204,19 @@ public class TestCpuOpcodes {
         verifyNoMoreInteractions(mem);
         assertRegisterValues(0, buildWord(TEST_BYTE, 0), 0, 0, 0, 1, false, false, false, false);
     }
+
+    // RLCA
+    public void testOpcode07() {
+        int opcode = 0x07;
+
+        setRegisters(TEST_BYTE, 0, 0, 0, 0, 0, true, true, true, false);
+        cpu.processOpcode(opcode);
+        assertRegisterValues(0x33, 0, 0, 0, 0, 0, false, false, false, true);
+        verifyZeroInteractions(mem);
+
+        setRegisters(0x66, 0, 0, 0, 0, 0, true, true, true, true);
+        cpu.processOpcode(opcode);
+        assertRegisterValues(0xCC, 0, 0, 0, 0, 0, false, false, false, false);
+        verifyZeroInteractions(mem);
+    }
 }
