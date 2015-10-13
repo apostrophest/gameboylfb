@@ -95,17 +95,27 @@ public class GameBoyMemory {
         return (high | low);
     }
 
-    public void writeByte(int data, int addr) {
+    public void writeByte(int data8, int addr) {
         if (addr < 0x8000) {
             // Attempted write to ROM, which will do nothing.
             // At least not until implementing switched memory banks...
         } else if (addr >= 0xE000 && addr < 0xFE00) {
             // Take into account the mirrored RAM area
             addr -= 0x2000;
-            memory[addr] = (byte) data;
+            memory[addr] = (byte) data8;
         } else {
-            memory[addr] = (byte) data;
+            memory[addr] = (byte) data8;
         }
+    }
+
+    /**
+     * Write word (two bytes) of little-endian data.
+     */
+    public void writeWord(int data16, int addr) {
+        int lowByte = data16 & GameBoyCpu.MASK_BYTE;
+        int highByte = (data16 & GameBoyCpu.MASK_HIGH_BYTE) >>> 8;
+        writeByte(lowByte, addr);
+        writeByte(highByte, addr + 1);
     }
 
 }
