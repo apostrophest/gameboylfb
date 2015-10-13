@@ -68,6 +68,7 @@ public class GameBoyCpu {
 
     void processOpcode(int opcode) {
         int operand;
+        int tempAddr;
 
         // Opcode reference:
         // http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -138,6 +139,12 @@ public class GameBoyCpu {
                 operand = rotateLeftAndSetFlags(reg.getA());
                 reg.setA(operand);
                 cycleCounter += 4;
+                break;
+
+            case 0x08: // LD (a16),SP : 3,20
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                mem.writeWord(reg.getSP(), tempAddr);
+                cycleCounter += 20;
                 break;
 
             default: // Unimplemented opcode
