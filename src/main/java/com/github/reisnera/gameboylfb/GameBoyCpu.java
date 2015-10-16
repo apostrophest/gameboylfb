@@ -99,37 +99,23 @@ public class GameBoyCpu {
                 break;
 
             case 0x04: // INC B : 1,4 : Z 0 H -
-                reg.setB(reg.getB() + 1);
+                priorValue = reg.getB();
+                reg.setB(priorValue + 1);
                 cycleCounter += 4;
                 // Flags
+                checkForZero(reg.getB());
                 reg.clearFlagN();
-                if (reg.getB() == 0) {
-                    reg.setFlagZ();
-                    reg.setFlagH();
-                } else if ((reg.getB() & MASK_HALF_BYTE) == 0) {
-                    reg.clearFlagZ();
-                    reg.setFlagH();
-                } else {
-                    reg.clearFlagZ();
-                    reg.clearFlagH();
-                }
+                checkAddForHalfCarry(priorValue, reg.getB(), MASK_HALF_BYTE);
                 break;
 
             case 0x05: // DEC B : 1,4 : Z 1 H -
-                reg.setB(reg.getB() - 1);
+                priorValue = reg.getB();
+                reg.setB(priorValue - 1);
                 cycleCounter += 4;
                 // Flags
+                checkForZero(reg.getB());
                 reg.setFlagN();
-                if (reg.getB() == 0) {
-                    reg.setFlagZ();
-                    reg.clearFlagH();
-                } else if ((reg.getB() & MASK_HALF_BYTE) == MASK_HALF_BYTE) {
-                    reg.clearFlagZ();
-                    reg.setFlagH();
-                } else {
-                    reg.clearFlagZ();
-                    reg.clearFlagH();
-                }
+                checkSubForHalfCarry(priorValue, reg.getB(), MASK_HALF_BYTE);
                 break;
 
             case 0x06: // LD B,d8 : 2,8
@@ -168,8 +154,8 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 // Flags
                 reg.clearFlagN();
-                checkForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
-                checkForCarry(priorValue, reg.getHL());
+                checkAddForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkAddForCarry(priorValue, reg.getHL());
                 break;
 
             case 0x0A: // LD A,(BC) : 1,8
@@ -189,7 +175,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getC());
                 reg.clearFlagN();
-                checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
+                checkAddForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
                 break;
 
             case 0x0D: // DEC C : 1,4 : Z 1 H -
@@ -199,7 +185,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getC());
                 reg.setFlagN();
-                checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
+                checkSubForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
                 break;
 
             case 0x0E: // LD C,d8 : 2,8
@@ -252,7 +238,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getD());
                 reg.clearFlagN();
-                checkForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
+                checkAddForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
                 break;
 
             case 0x15: // DEC D : 1,4 : Z 1 H -
@@ -262,7 +248,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getD());
                 reg.setFlagN();
-                checkForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
+                checkSubForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
                 break;
 
             case 0x16: // LD D,d8 : 2,8
@@ -303,8 +289,8 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 // Flags
                 reg.clearFlagN();
-                checkForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
-                checkForCarry(priorValue, reg.getHL());
+                checkAddForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkAddForCarry(priorValue, reg.getHL());
                 break;
 
             case 0x1A: // LD A,(DE) : 1,8
@@ -324,7 +310,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getE());
                 reg.clearFlagN();
-                checkForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
+                checkAddForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
                 break;
 
             case 0x1D: // DEC E : 1,4 : Z 1 H -
@@ -334,7 +320,7 @@ public class GameBoyCpu {
                 // Flags
                 checkForZero(reg.getE());
                 reg.setFlagN();
-                checkForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
+                checkSubForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
                 break;
 
             case 0x1E: // LD E,d8 : 2,8
@@ -395,13 +381,11 @@ public class GameBoyCpu {
     }
 
     /**
-     * Evaluate for a half-carry and set the flag as appropriate.
-     * @param priorValue The original value of the register/data under question.
-     * @param newValue The new value of the register/data under question.
+     * Evaluate for a half-carry after an add or increment and set the flag as appropriate.
      * @param byteMask The appropriate mask for the half-carry. I.e. MASK_HALF_BYTE (0xF) for 8-bit register/data and
      *                 MASK_BYTE_PLUS_NIBBLE (0xFFF) for 16-bit register/data.
      */
-    private void checkForHalfCarry(int priorValue, int newValue, int byteMask) {
+    private void checkAddForHalfCarry(int priorValue, int newValue, int byteMask) {
         priorValue &= byteMask;
         newValue &= byteMask;
         if (newValue < priorValue) {
@@ -411,8 +395,31 @@ public class GameBoyCpu {
         }
     }
 
-    private void checkForCarry(int priorValue, int newValue) {
+    private void checkAddForCarry(int priorValue, int newValue) {
         if (newValue < priorValue) {
+            reg.setFlagCy();
+        } else {
+            reg.clearFlagCy();
+        }
+    }
+
+    /**
+     * Evaluate for a half-carry after a subtract or decrement and set the flag as appropriate.
+     * @param byteMask The appropriate mask for the half-carry. I.e. MASK_HALF_BYTE (0xF) for 8-bit register/data and
+     *                 MASK_BYTE_PLUS_NIBBLE (0xFFF) for 16-bit register/data.
+     */
+    private void checkSubForHalfCarry(int priorValue, int newValue, int byteMask) {
+        priorValue &= byteMask;
+        newValue &= byteMask;
+        if (newValue > priorValue) {
+            reg.setFlagH();
+        } else {
+            reg.clearFlagH();
+        }
+    }
+
+    private void checkSubForCarry(int priorValue, int newValue) {
+        if (newValue > priorValue) {
             reg.setFlagCy();
         } else {
             reg.clearFlagCy();
