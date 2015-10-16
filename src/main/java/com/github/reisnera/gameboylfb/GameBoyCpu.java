@@ -16,6 +16,7 @@ public class GameBoyCpu {
 
     public static final int MASK_HALF_BYTE = 0xF;
     public static final int MASK_BYTE = 0xFF;
+    public static final int MASK_BYTE_PLUS_NIBBLE = 0xFFF;
     public static final int MASK_WORD = 0xFFFF;
     public static final int MASK_HIGH_BYTE = 0xFF00;
 
@@ -158,7 +159,40 @@ public class GameBoyCpu {
         // process any interrupts
     }
 
-    // Opcode helper functions
+    // Opcode helper methods
+
+    private void checkForZero(int newValue) {
+        if (newValue == 0) {
+            reg.setFlagZ();
+        } else {
+            reg.clearFlagZ();
+        }
+    }
+
+    /**
+     * Evaluate for a half-carry and set the flag as appropriate.
+     * @param priorValue The original value of the register/data under question.
+     * @param newValue The new value of the register/data under question.
+     * @param byteMask The appropriate mask for the half-carry. I.e. MASK_HALF_BYTE (0xF) for 8-bit register/data and
+     *                 MASK_BYTE_PLUS_NIBBLE (0xFFF) for 16-bit register/data.
+     */
+    private void checkForHalfCarry(int priorValue, int newValue, int byteMask) {
+        priorValue &= byteMask;
+        newValue &= byteMask;
+        if (newValue < priorValue) {
+            reg.setFlagH();
+        } else {
+            reg.clearFlagH();
+        }
+    }
+
+    private void checkForCarry(int priorValue, int newValue) {
+        if (newValue < priorValue) {
+            reg.setFlagCy();
+        } else {
+            reg.clearFlagCy();
+        }
+    }
 
     private int rotateLeftAndSetFlags(int num8) {
         int mostSigBit = (1 << 7) & num8;
