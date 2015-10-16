@@ -71,6 +71,7 @@ public class GameBoyCpu {
         int operand;
         int tempAddr;
         int priorValue;
+        int mostSigBit, leastSigBit;
 
         // Opcode reference:
         // http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -138,9 +139,21 @@ public class GameBoyCpu {
                 break;
 
             case 0x07: // RLCA : 1,4 : 0 0 0 C
-                operand = rotateLeftAndSetFlags(reg.getA());
+                operand = reg.getA();
+                mostSigBit = (1 << 7) & operand;
+                operand = (operand << 1) & MASK_BYTE;
+                operand |= (mostSigBit >>> 7);
                 reg.setA(operand);
                 cycleCounter += 4;
+                // Flags
+                reg.clearFlagZ();
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (mostSigBit == 0) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
                 break;
 
             case 0x08: // LD (a16),SP : 3,20
@@ -195,8 +208,21 @@ public class GameBoyCpu {
                 break;
 
             case 0x0F: // RRCA : 1,4 : 0 0 0 C
-                reg.setA(rotateRightAndSetFlags(reg.getA()));
+                operand = reg.getA();
+                leastSigBit = operand & 1;
+                operand = operand >>> 1;
+                operand |= leastSigBit << 7;
+                reg.setA(operand);
                 cycleCounter += 4;
+                // Flags
+                reg.clearFlagZ();
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (leastSigBit == 0) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
                 break;
 
             default: // Unimplemented opcode
@@ -243,39 +269,6 @@ public class GameBoyCpu {
         } else {
             reg.clearFlagCy();
         }
-    }
-
-    private int rotateLeftAndSetFlags(int num8) {
-        int mostSigBit = (1 << 7) & num8;
-        num8 = (num8 << 1) & MASK_BYTE;
-        num8 |= (mostSigBit >>> 7);
-        reg.clearFlagZ();
-        reg.clearFlagN();
-        reg.clearFlagH();
-
-        if (mostSigBit == 0)
-            reg.clearFlagCy();
-        else if (mostSigBit == (1 << 7))
-            reg.setFlagCy();
-
-        return num8;
-    }
-
-    private int rotateRightAndSetFlags(int num8) {
-        int leastSigBit = num8 & 0x1;
-        num8 = num8 >>> 1;
-        num8 |= leastSigBit << 7;
-
-        reg.clearFlagZ();
-        reg.clearFlagN();
-        reg.clearFlagH();
-        if (leastSigBit == 0) {
-            reg.clearFlagCy();
-        } else {
-            reg.setFlagCy();
-        }
-
-        return num8;
     }
 
     /**
