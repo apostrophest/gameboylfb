@@ -359,6 +359,94 @@ public class GameBoyCpu {
                 }
                 break;
 
+            case 0x21: // LD HL,d16 : 3,12
+                reg.setHL(mem.readWord(reg.getThenIncPC(2)));
+                cycleCounter += 12;
+                break;
+
+            case 0x22: // LD (HL+),A : 1,8
+                mem.writeByte(reg.getA(), reg.getHL());
+                reg.setHL(reg.getHL() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x23: // INC HL : 1,8
+                reg.setHL(reg.getHL() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x24: // INC H : 1,4 : Z 0 H -
+                priorValue = reg.getH();
+                reg.setH(priorValue + 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getH());
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getH(), MASK_HALF_BYTE);
+                break;
+
+            case 0x25: // DEC H : 1,4 : Z 1 H -
+                priorValue = reg.getH();
+                reg.setH(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getH());
+                reg.setFlagN();
+                checkSubForHalfCarry(priorValue, reg.getH(), MASK_HALF_BYTE);
+                break;
+
+            case 0x26: // LD H,d8 : 2,8
+                reg.setH(mem.readByte(reg.getThenIncPC()));
+                cycleCounter += 8;
+                break;
+
+            case 0x27: // DAA : 1,4 : Z - 0 C
+                // TODO: implement this
+                cycleCounter += 4;
+                break;
+
+            case 0x28: // JR Z,r8 : 2,12/8
+                if (reg.isSetZ()) {
+                    operand = mem.readByte(reg.getThenIncPC());
+                    reg.setPC(reg.getPC() + (byte) operand);
+                    cycleCounter += 12;
+                } else {
+                    reg.incPC(); // Move PC past byte of immediate data
+                    cycleCounter += 8;
+                }
+                break;
+
+            case 0x29: // ADD HL,HL : 1,8 : - 0 H C
+                priorValue = reg.getHL();
+                reg.setHL(priorValue * 2);
+                cycleCounter += 8;
+                // Flags
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkAddForCarry(priorValue, reg.getHL());
+                break;
+
+            case 0x2A: // LD A,(HL+) : 1,8
+                reg.setA(mem.readByte(reg.getHL()));
+                reg.setHL(reg.getHL() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x2B: // DEC HL : 1,8
+                reg.setHL(reg.getHL() - 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x2C: // INC L : 1,4 : Z 0 H -
+                priorValue = reg.getL();
+                reg.setL(priorValue + 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getL());
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getL(), MASK_HALF_BYTE);
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
