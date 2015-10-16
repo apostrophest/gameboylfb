@@ -70,6 +70,7 @@ public class GameBoyCpu {
     void processOpcode(int opcode) {
         int operand;
         int tempAddr;
+        int priorValue;
 
         // Opcode reference:
         // http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -146,6 +147,51 @@ public class GameBoyCpu {
                 tempAddr = mem.readWord(reg.getThenIncPC(2));
                 mem.writeWord(reg.getSP(), tempAddr);
                 cycleCounter += 20;
+                break;
+
+            case 0x09: // ADD HL,BC : 1,8 : - 0 H C
+                priorValue = reg.getHL();
+                reg.setHL(priorValue + reg.getBC());
+                cycleCounter += 8;
+                // Flags
+                reg.clearFlagN();
+                checkForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkForCarry(priorValue, reg.getHL());
+                break;
+
+            case 0xA: // LD A,(BC) : 1,8
+                reg.setA(mem.readByte(reg.getBC()));
+                cycleCounter += 8;
+                break;
+
+            case 0xB: // DEC BC : 1,8
+                reg.setBC(reg.getBC() - 1);
+                cycleCounter += 8;
+                break;
+
+            case 0xC: // INC C : 1,4 : Z 0 H -
+                priorValue = reg.getC();
+                reg.setC(priorValue + 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getC());
+                reg.clearFlagN();
+                checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
+                break;
+
+            case 0xD: // DEC C : 1,4 : Z 1 H -
+                priorValue = reg.getC();
+                reg.setC(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getC());
+                reg.setFlagN();
+                checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
+                break;
+
+            case 0xE: // LD C,d8 : 2,8
+                reg.setC(mem.readByte(reg.getThenIncPC()));
+                cycleCounter += 8;
                 break;
 
             default: // Unimplemented opcode
