@@ -159,17 +159,17 @@ public class GameBoyCpu {
                 checkForCarry(priorValue, reg.getHL());
                 break;
 
-            case 0xA: // LD A,(BC) : 1,8
+            case 0x0A: // LD A,(BC) : 1,8
                 reg.setA(mem.readByte(reg.getBC()));
                 cycleCounter += 8;
                 break;
 
-            case 0xB: // DEC BC : 1,8
+            case 0x0B: // DEC BC : 1,8
                 reg.setBC(reg.getBC() - 1);
                 cycleCounter += 8;
                 break;
 
-            case 0xC: // INC C : 1,4 : Z 0 H -
+            case 0x0C: // INC C : 1,4 : Z 0 H -
                 priorValue = reg.getC();
                 reg.setC(priorValue + 1);
                 cycleCounter += 4;
@@ -179,7 +179,7 @@ public class GameBoyCpu {
                 checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
                 break;
 
-            case 0xD: // DEC C : 1,4 : Z 1 H -
+            case 0x0D: // DEC C : 1,4 : Z 1 H -
                 priorValue = reg.getC();
                 reg.setC(priorValue - 1);
                 cycleCounter += 4;
@@ -189,12 +189,12 @@ public class GameBoyCpu {
                 checkForHalfCarry(priorValue, reg.getC(), MASK_HALF_BYTE);
                 break;
 
-            case 0xE: // LD C,d8 : 2,8
+            case 0x0E: // LD C,d8 : 2,8
                 reg.setC(mem.readByte(reg.getThenIncPC()));
                 cycleCounter += 8;
                 break;
 
-            case 0xF: // RRCA : 1,4 : 0 0 0 C
+            case 0x0F: // RRCA : 1,4 : 0 0 0 C
                 reg.setA(rotateRightAndSetFlags(reg.getA()));
                 cycleCounter += 4;
                 break;
