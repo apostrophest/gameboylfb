@@ -225,6 +225,154 @@ public class GameBoyCpu {
                 }
                 break;
 
+            case 0x10: // STOP 0 : 2,4
+                // TODO: implement this!
+                break;
+
+            case 0x11: // LD DE,d16 : 3,12
+                operand = mem.readWord(reg.getThenIncPC(2));
+                reg.setDE(operand);
+                cycleCounter += 12;
+                break;
+
+            case 0x12: // LD (DE),A : 1,8
+                mem.writeByte(reg.getA(), reg.getDE());
+                cycleCounter += 8;
+                break;
+
+            case 0x13: // INC DE : 1,8
+                reg.setDE(reg.getDE() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x14: // INC D : 1,4 : Z 0 H -
+                priorValue = reg.getD();
+                reg.setD(priorValue + 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getD());
+                reg.clearFlagN();
+                checkForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
+                break;
+
+            case 0x15: // DEC D : 1,4 : Z 1 H -
+                priorValue = reg.getD();
+                reg.setD(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getD());
+                reg.setFlagN();
+                checkForHalfCarry(priorValue, reg.getD(), MASK_HALF_BYTE);
+                break;
+
+            case 0x16: // LD D,d8 : 2,8
+                reg.setD(mem.readByte(reg.getThenIncPC()));
+                cycleCounter += 8;
+                break;
+
+            case 0x17: // RLA : 1,4 : 0 0 0 C
+                operand = reg.getA();
+                mostSigBit = (1 << 7) & operand;
+                operand = (operand << 1) & MASK_BYTE;
+                if (reg.isSetCy()) {
+                    operand |= 1;
+                }
+                reg.setA(operand);
+                cycleCounter += 4;
+                // Flags
+                reg.clearFlagZ();
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (mostSigBit == 0) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
+                break;
+
+            case 0x18: // JR r8 : 2,12
+                // TODO: if things aren't working AT ALL when we run a ROM, look here and at all the JR instructions.
+                operand = mem.readByte(reg.getThenIncPC());
+                reg.setPC(reg.getPC() + (byte) operand);
+                cycleCounter += 12;
+                break;
+
+            case 0x19: // ADD HL,DE : 1,8 : - 0 H C
+                priorValue = reg.getHL();
+                reg.setHL(priorValue + reg.getDE());
+                cycleCounter += 8;
+                // Flags
+                reg.clearFlagN();
+                checkForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkForCarry(priorValue, reg.getHL());
+                break;
+
+            case 0x1A: // LD A,(DE) : 1,8
+                reg.setA(mem.readByte(reg.getDE()));
+                cycleCounter += 8;
+                break;
+
+            case 0x1B: // DEC DE : 1,8
+                reg.setDE(reg.getDE() - 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x1C: // INC E : 1,4 : Z 0 H -
+                priorValue = reg.getE();
+                reg.setE(priorValue + 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getE());
+                reg.clearFlagN();
+                checkForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
+                break;
+
+            case 0x1D: // DEC E : 1,4 : Z 1 H -
+                priorValue = reg.getE();
+                reg.setE(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getE());
+                reg.setFlagN();
+                checkForHalfCarry(priorValue, reg.getE(), MASK_HALF_BYTE);
+                break;
+
+            case 0x1E: // LD E,d8 : 2,8
+                reg.setE(mem.readByte(reg.getThenIncPC()));
+                cycleCounter += 8;
+                break;
+
+            case 0x1F: // RRA : 1,4 : 0 0 0 C
+                operand = reg.getA();
+                leastSigBit = operand & 1;
+                operand = operand >>> 1;
+                if (reg.isSetCy()) {
+                    operand |= 1 << 7;
+                }
+                reg.setA(operand);
+                cycleCounter += 4;
+                // Flags
+                reg.clearFlagZ();
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (leastSigBit == 0) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
+                break;
+
+            case 0x20: // JR NZ,r8 : 2,12/8
+                if (reg.isSetZ()) {
+                    reg.incPC(); // Move PC past immediate byte data to next instruction
+                    cycleCounter += 8;
+                } else {
+                    operand = mem.readByte(reg.getThenIncPC());
+                    reg.setPC(reg.getPC() + (byte) operand);
+                    cycleCounter += 12;
+                }
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
