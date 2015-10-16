@@ -194,6 +194,11 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 break;
 
+            case 0xF: // RRCA : 1,4 : 0 0 0 C
+                reg.setA(rotateRightAndSetFlags(reg.getA()));
+                cycleCounter += 4;
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
@@ -252,6 +257,23 @@ public class GameBoyCpu {
             reg.clearFlagCy();
         else if (mostSigBit == (1 << 7))
             reg.setFlagCy();
+
+        return num8;
+    }
+
+    private int rotateRightAndSetFlags(int num8) {
+        int leastSigBit = num8 & 0x1;
+        num8 = num8 >>> 1;
+        num8 |= leastSigBit << 7;
+
+        reg.clearFlagZ();
+        reg.clearFlagN();
+        reg.clearFlagH();
+        if (leastSigBit == 0) {
+            reg.clearFlagCy();
+        } else {
+            reg.setFlagCy();
+        }
 
         return num8;
     }
