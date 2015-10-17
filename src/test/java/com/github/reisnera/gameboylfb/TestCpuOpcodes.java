@@ -219,4 +219,42 @@ public class TestCpuOpcodes {
         assertRegisterValues(0xCC, 0, 0, 0, 0, 0, false, false, false, false);
         verifyZeroInteractions(mem);
     }
+
+    // LD (a16),SP
+    public void testOpcode08() {
+        int opcode = 0x08;
+
+        setRegisters(0, 0, 0, 0, TEST_WORD, 0, false, false, false, false);
+        when(mem.readWord(anyInt())).thenReturn(0xF0F0);
+
+        cpu.processOpcode(opcode);
+
+        verify(mem).readWord(0);
+        verify(mem).writeWord(TEST_WORD, 0xF0F0);
+        verifyNoMoreInteractions(mem);
+        assertRegisterValues(0, 0, 0, 0, TEST_WORD, 2, false, false, false, false);
+    }
+
+    // ADD HL,BC
+    public void testOpcode09() {
+        int opcode = 0x09;
+
+        // Add should carry and half carry
+        setRegisters(0, TEST_WORD, 0, TEST_WORD, 0, 0, false, false, false, false);
+        cpu.processOpcode(opcode);
+        verifyZeroInteractions(mem);
+        assertRegisterValues(0, TEST_WORD, 0, 0x3332, 0, 0, false, false, true, true);
+
+        // Add shouldn't carry
+        setRegisters(0, 0x0001, 0, TEST_WORD, 0, 0, false, false, false, false);
+        cpu.processOpcode(opcode);
+        verifyZeroInteractions(mem);
+        assertRegisterValues(0, 0x0001, 0, TEST_WORD + 0x0001, 0, 0, false, false, false, false);
+
+        // Add should reset N flag
+        setRegisters(0, 0x0001, 0, TEST_WORD, 0, 0, false, true, false, false);
+        cpu.processOpcode(opcode);
+        verifyZeroInteractions(mem);
+        assertRegisterValues(0, 0x0001, 0, TEST_WORD + 0x0001, 0, 0, false, false, false, false);
+    }
 }
