@@ -8,6 +8,8 @@
 
 package com.github.reisnera.gameboylfb;
 
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -527,6 +529,54 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 break;
 
+            case 0x3A: // LD A,(HL-) : 1,8
+                reg.setA(mem.readByte(reg.getHL()));
+                reg.setHL(reg.getHL() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x3B: // DEC SP : 1,8
+                reg.setSP(reg.getSP() - 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x3C: // INC A : 1,4 : Z 0 H -
+                priorValue = reg.getA();
+                reg.setA(priorValue + 1);
+                cycleCounter += 4;
+                //Flags
+                checkForZero(reg.getA());
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                break;
+
+            case 0x3D: // DEC A : 1,4 : Z 1 H -
+                priorValue = reg.getA();
+                reg.setA(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getA());
+                reg.setFlagN();
+                checkSubForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                break;
+
+            case 0x3E: // LD A,d8 : 2,8
+                reg.setA(mem.readByte(reg.getThenIncPC(1)));
+                cycleCounter += 8;
+                break;
+
+            case 0x3F: // CCF : 1,4 : - 0 0 C
+                cycleCounter += 4;
+                // Flags
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (reg.isSetCy()) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
+                break;
+
             case 0x40: // LD B,B : 1,4
                 // NOP
                 cycleCounter += 4;
@@ -607,6 +657,146 @@ public class GameBoyCpu {
                 cycleCounter += 4;
                 break;
 
+            case 0x80: // ADD A,B : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getB, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x81: // ADD A,C : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getC, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x82: // ADD A,D : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getD, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x83: // ADD A,E : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getE, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x84: // ADD A,H : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getH, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x85: // ADD A,L : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getL, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x87: // ADD A,A : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getA, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x88: // ADC A,B : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getB, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x89: // ADC A,C : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getC, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x8A: // ADC A,D : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getD, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x8B: // ADC A,E : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getE, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x8C: // ADC A,H : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getH, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x8D: // ADC A,L : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getL, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x8F: // ADC A,A : 1,4 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, reg::getA, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x90: // SUB B : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getB, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x91: // SUB C : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getC, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x92: // SUB D : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getD, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x93: // SUB E : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getE, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x94: // SUB H : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getH, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x95: // SUB L : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getL, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x97: // SUB A : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getA, false);
+                cycleCounter += 4;
+                break;
+
+            case 0x98: // SBC A,B : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getB, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x99: // SBC A,C : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getC, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x9A: // SBC A,D : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getD, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x9B: // SBC A,E : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getE, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x9C: // SBC A,H : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getH, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x9D: // SBC A,L : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getL, true);
+                cycleCounter += 4;
+                break;
+
+            case 0x9F: // SBC A,A : 1,4 : Z 1 H C
+                subtractByteFromByte(reg::getA, reg::setA, reg::getA, true);
+                cycleCounter += 4;
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
@@ -672,6 +862,54 @@ public class GameBoyCpu {
         } else {
             reg.clearFlagCy();
         }
+    }
+
+    /**
+     * ADD [byte],[byte] : 1,4 : Z 0 H C
+     * ADC [byte],[byte] : 1,4 : Z 0 H C
+     * @param getDest Byte register getter
+     * @param setDest Byte register setter
+     * @param getSrc Byte register getter
+     * @param withCarry Whether to add with carry
+     */
+    private void addByteToByte(IntSupplier getDest, IntConsumer setDest, IntSupplier getSrc, boolean withCarry) {
+        int priorValue = getDest.getAsInt();
+        int carryModifier = 0;
+
+        if (withCarry && reg.isSetCy()) {
+            carryModifier = 1;
+        }
+
+        setDest.accept(priorValue + getSrc.getAsInt() + carryModifier);
+        // Flags
+        checkForZero(getDest.getAsInt());
+        reg.clearFlagN();
+        checkAddForHalfCarry(priorValue, getDest.getAsInt(), MASK_HALF_BYTE);
+        checkAddForCarry(priorValue, getDest.getAsInt());
+    }
+
+    /**
+     * SUB [byte],[byte] : 1,4 : Z 1 H C
+     * SBC [byte],[byte] : 1,4 : Z 1 H C
+     * @param getDest Byte register getter
+     * @param setDest Byte register setter
+     * @param getSrc Byte register getter
+     * @param withCarry Whether to subtract with carry
+     */
+    private void subtractByteFromByte(IntSupplier getDest, IntConsumer setDest, IntSupplier getSrc, boolean withCarry) {
+        int priorValue = getDest.getAsInt();
+        int carryModifier = 0;
+
+        if (withCarry && reg.isSetCy()) {
+            carryModifier = 1;
+        }
+
+        setDest.accept(priorValue - getSrc.getAsInt() - carryModifier);
+        // Flags
+        checkForZero(getDest.getAsInt());
+        reg.setFlagN();
+        checkSubForHalfCarry(priorValue, getDest.getAsInt(), MASK_HALF_BYTE);
+        checkSubForCarry(priorValue, getDest.getAsInt());
     }
 
     /**
