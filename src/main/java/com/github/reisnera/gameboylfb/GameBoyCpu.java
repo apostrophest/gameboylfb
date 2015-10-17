@@ -527,6 +527,54 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 break;
 
+            case 0x3A: // LD A,(HL-) : 1,8
+                reg.setA(mem.readByte(reg.getHL()));
+                reg.setHL(reg.getHL() + 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x3B: // DEC SP : 1,8
+                reg.setSP(reg.getSP() - 1);
+                cycleCounter += 8;
+                break;
+
+            case 0x3C: // INC A : 1,4 : Z 0 H -
+                priorValue = reg.getA();
+                reg.setA(priorValue + 1);
+                cycleCounter += 4;
+                //Flags
+                checkForZero(reg.getA());
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                break;
+
+            case 0x3D: // DEC A : 1,4 : Z 1 H -
+                priorValue = reg.getA();
+                reg.setA(priorValue - 1);
+                cycleCounter += 4;
+                // Flags
+                checkForZero(reg.getA());
+                reg.setFlagN();
+                checkSubForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                break;
+
+            case 0x3E: // LD A,d8 : 2,8
+                reg.setA(mem.readByte(reg.getThenIncPC(1)));
+                cycleCounter += 8;
+                break;
+
+            case 0x3F: // CCF : 1,4 : - 0 0 C
+                cycleCounter += 4;
+                // Flags
+                reg.clearFlagN();
+                reg.clearFlagH();
+                if (reg.isSetCy()) {
+                    reg.clearFlagCy();
+                } else {
+                    reg.setFlagCy();
+                }
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
