@@ -126,43 +126,23 @@ public class TestCpuRegisters {
     }
 
     public void verifyDE() {
-        Supplier<Integer> getLow = () -> reg.getE();
-        Supplier<Integer> getHigh = () -> reg.getD();
-        Supplier<Integer> getFull = () -> reg.getDE();
-        IntConsumer setLow = (x) -> reg.setE(x);
-        IntConsumer setHigh = (x) -> reg.setD(x);
-        IntConsumer setFull = (x) -> reg.setDE(x);
-
-        verifyRegisterGet(getLow, getHigh, setFull);
-        verifyRegisterSet(getFull, setLow, setHigh);
-        verifyFull(getFull, setFull);
+        verifyRegisterGet(reg::getE, reg::getD, reg::setDE);
+        verifyRegisterSet(reg::getDE, reg::setE, reg::setD);
+        verifyFull(reg::getDE, reg::setDE);
     }
 
     public void verifyHL() {
-        Supplier<Integer> getLow = () -> reg.getL();
-        Supplier<Integer> getHigh = () -> reg.getH();
-        Supplier<Integer> getFull = () -> reg.getHL();
-        IntConsumer setLow = (x) -> reg.setL(x);
-        IntConsumer setHigh = (x) -> reg.setH(x);
-        IntConsumer setFull = (x) -> reg.setHL(x);
-
-        verifyRegisterGet(getLow, getHigh, setFull);
-        verifyRegisterSet(getFull, setLow, setHigh);
-        verifyFull(getFull, setFull);
+        verifyRegisterGet(reg::getL, reg::getH, reg::setHL);
+        verifyRegisterSet(reg::getHL, reg::setL, reg::setH);
+        verifyFull(reg::getHL, reg::setHL);
     }
 
     public void verifySP() {
-        Supplier<Integer> getFull = () -> reg.getSP();
-        IntConsumer setFull = (x) -> reg.setSP(x);
-
-        verifyFull(getFull, setFull);
+        verifyFull(reg::getSP, reg::setSP);
     }
 
     public void verifyPC() {
-        Supplier<Integer> getFull = () -> reg.getPC();
-        IntConsumer setFull = (x) -> reg.setPC(x);
-
-        verifyFull(getFull, setFull);
+        verifyFull(reg::getPC, reg::setPC);
     }
 
 }
