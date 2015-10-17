@@ -527,6 +527,86 @@ public class GameBoyCpu {
                 cycleCounter += 8;
                 break;
 
+            case 0x40: // LD B,B : 1,4
+                // NOP
+                cycleCounter += 4;
+                break;
+
+            case 0x41: // LD B,C : 1,4
+                reg.setB(reg.getC());
+                cycleCounter += 4;
+                break;
+
+            case 0x42: // LD B,D : 1,4
+                reg.setB(reg.getD());
+                cycleCounter += 4;
+                break;
+
+            case 0x43: // LD B,E : 1,4
+                reg.setB(reg.getE());
+                cycleCounter += 4;
+                break;
+
+            case 0x44: // LD B,H : 1,4
+                reg.setB(reg.getH());
+                cycleCounter += 4;
+                break;
+
+            case 0x45: // LD B,L : 1,4
+                reg.setB(reg.getL());
+                cycleCounter += 4;
+                break;
+
+            case 0x46: // LD B,(HL) : 1,8
+                reg.setB(mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                break;
+
+            case 0x47: // LD B,A : 1,4
+                reg.setB(reg.getA());
+                cycleCounter += 4;
+                break;
+
+            case 0x48: // LD C,B : 1,4
+                reg.setC(reg.getB());
+                cycleCounter += 4;
+                break;
+
+            case 0x49: // LD C,C : 1,4
+                // NOP
+                cycleCounter += 4;
+                break;
+
+            case 0x4A: // LD C,D : 1,4
+                reg.setC(reg.getD());
+                cycleCounter += 4;
+                break;
+
+            case 0x4B: // LD C,E : 1,4
+                reg.setC(reg.getE());
+                cycleCounter += 4;
+                break;
+
+            case 0x4C: // LD C,E : 1,4
+                reg.setC(reg.getE());
+                cycleCounter += 4;
+                break;
+
+            case 0x4D: // LD C,L : 1,4
+                reg.setC(reg.getL());
+                cycleCounter += 4;
+                break;
+
+            case 0x4E: // LD C,(HL) : 1,8
+                reg.setC(mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                break;
+
+            case 0x4F: // LD C,A : 1,4
+                reg.setC(reg.getA());
+                cycleCounter += 4;
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
