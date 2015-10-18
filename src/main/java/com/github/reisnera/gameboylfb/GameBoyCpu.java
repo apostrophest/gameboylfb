@@ -17,6 +17,7 @@ public class GameBoyCpu {
     private static final Logger LOG = Logger.getLogger(GameBoyCpu.class.getName());
 
     public static final int MASK_HALF_BYTE = 0xF;
+    public static final int MASK_HIGH_NIBBLE = 0xF0;
     public static final int MASK_BYTE = 0xFF;
     public static final int MASK_BYTE_PLUS_NIBBLE = 0xFFF;
     public static final int MASK_WORD = 0xFFFF;
@@ -403,7 +404,19 @@ public class GameBoyCpu {
                 break;
 
             case 0x27: // DAA : 1,4 : Z - 0 C
-                // TODO: implement this
+                if (reg.isSetH() || (reg.getA() & MASK_HALF_BYTE) > 9) {
+                    reg.setA(reg.getA() + 0x06);
+                }
+
+                if (reg.isSetCy() || (reg.getA() & MASK_HIGH_NIBBLE) > 9) {
+                    reg.setA(reg.getA() + 0x60);
+                    reg.setFlagCy();
+                } else {
+                    reg.clearFlagCy();
+                }
+
+                checkForZero(reg.getA());
+                reg.clearFlagH();
                 cycleCounter += 4;
                 break;
 
