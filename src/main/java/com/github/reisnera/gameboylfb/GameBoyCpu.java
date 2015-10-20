@@ -670,6 +670,86 @@ public class GameBoyCpu {
                 cycleCounter += 4;
                 break;
 
+            case 0x50: // LD D,B : 1,4
+                reg.setD(reg.getB());
+                cycleCounter += 4;
+                break;
+
+            case 0x51: // LD D,C : 1,4
+                reg.setD(reg.getC());
+                cycleCounter += 4;
+                break;
+
+            case 0x52: // LD D,D : 1,4
+                // NOP
+                cycleCounter += 4;
+                break;
+
+            case 0x53: // LD D,E : 1,4
+                reg.setD(reg.getE());
+                cycleCounter += 4;
+                break;
+
+            case 0x54: // LD D,H : 1,4
+                reg.setD(reg.getH());
+                cycleCounter += 4;
+                break;
+
+            case 0x55: // LD D,L : 1,4
+                reg.setD(reg.getL());
+                cycleCounter += 4;
+                break;
+
+            case 0x56: // LD D,(HL) : 1,8
+                reg.setD(mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                break;
+
+            case 0x57: // LD D,A : 1,4
+                reg.setD(reg.getA());
+                cycleCounter += 4;
+                break;
+
+            case 0x58: // LD E,B : 1,4
+                reg.setE(reg.getB());
+                cycleCounter += 4;
+                break;
+
+            case 0x59: // LD E,C : 1,4
+                reg.setE(reg.getC());
+                cycleCounter += 4;
+                break;
+
+            case 0x5A: // LD E,D : 1,4
+                reg.setE(reg.getD());
+                cycleCounter += 4;
+                break;
+
+            case 0x5B: // LD E,E : 1,4
+                // NOP
+                cycleCounter += 4;
+                break;
+
+            case 0x5C: // LD E,H : 1,4
+                reg.setE(reg.getH());
+                cycleCounter += 4;
+                break;
+
+            case 0x5D: // LD E,L : 1,4
+                reg.setE(reg.getL());
+                cycleCounter += 4;
+                break;
+
+            case 0x5E: // LD E,(HL) : 1,8
+                reg.setE(mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                break;
+
+            case 0x5F: // LD E,A : 1,4
+                reg.setE(reg.getA());
+                cycleCounter += 4;
+                break;
+
             case 0x80: // ADD A,B : 1,4 : Z 0 H C
                 addByteToByte(reg::getA, reg::setA, reg::getB, false);
                 cycleCounter += 4;
