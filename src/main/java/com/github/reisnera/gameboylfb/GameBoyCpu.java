@@ -1050,6 +1050,82 @@ public class GameBoyCpu {
                 cycleCounter += 4;
                 break;
 
+            case 0xA0: // AND B : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getB);
+                break;
+
+            case 0xA1: // AND C : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getC);
+                break;
+
+            case 0xA2: // AND D : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getD);
+                break;
+
+            case 0xA3: // AND E : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getE);
+                break;
+
+            case 0xA4: // AND H : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getH);
+                break;
+
+            case 0xA5: // AND L : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getL);
+                break;
+
+            case 0xA6: // AND (HL) : 1,8 : Z 0 1 0
+                reg.setA(reg.getA() & mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                // Flags
+                checkForZero(reg.getA());
+                reg.clearFlagN();
+                reg.setFlagH();
+                reg.clearFlagCy();
+                break;
+
+            case 0xA7: // AND A : 1,4 : Z 0 1 0
+                bitwiseAndRegWithAccumulator(reg::getA);
+                break;
+
+            case 0xA8: // XOR B : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getB);
+                break;
+
+            case 0xA9: // XOR C : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getC);
+                break;
+
+            case 0xAA: // XOR D : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getD);
+                break;
+
+            case 0xAB: // XOR E : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getE);
+                break;
+
+            case 0xAC: // XOR H : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getH);
+                break;
+
+            case 0xAD: // XOR L : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getL);
+                break;
+
+            case 0xAE: // XOR (HL) : 1,8 : Z 0 0 0
+                reg.setA(reg.getA() ^ mem.readByte(reg.getHL()));
+                cycleCounter += 8;
+                // Flags
+                checkForZero(reg.getA());
+                reg.clearFlagN();
+                reg.clearFlagH();
+                reg.clearFlagCy();
+                break;
+
+            case 0xAF: // XOR A : 1,4 : Z 0 0 0
+                bitwiseXorRegWithAccumulator(reg::getA);
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
@@ -1163,6 +1239,34 @@ public class GameBoyCpu {
         reg.setFlagN();
         checkSubForHalfCarry(priorValue, getDest.getAsInt(), MASK_HALF_BYTE);
         checkSubForCarry(priorValue, getDest.getAsInt());
+    }
+
+    /**
+     * AND [8-bit reg] : 1,4 : Z 0 1 0
+     * @param getByteRegister Byte register getter
+     */
+    private void bitwiseAndRegWithAccumulator(IntSupplier getByteRegister) {
+        reg.setA(reg.getA() & getByteRegister.getAsInt());
+        cycleCounter += 4;
+        // Flags
+        checkForZero(reg.getA());
+        reg.clearFlagN();
+        reg.setFlagH();
+        reg.clearFlagCy();
+    }
+
+    /**
+     * XOR [8-bit reg] : 1,4 : Z 0 0 0
+     * @param getByteRegister Byte register getter
+     */
+    private void bitwiseXorRegWithAccumulator(IntSupplier getByteRegister) {
+        reg.setA(reg.getA() ^ getByteRegister.getAsInt());
+        cycleCounter += 4;
+        // Flags
+        checkForZero(reg.getA());
+        reg.clearFlagN();
+        reg.clearFlagH();
+        reg.clearFlagCy();
     }
 
     /**
