@@ -1126,6 +1126,147 @@ public class GameBoyCpu {
                 bitwiseXorRegWithAccumulator(reg::getA);
                 break;
 
+            case 0xC0: // RET NZ : 1,20/8
+                if (reg.isSetZ()) {
+                    cycleCounter += 8;
+                } else {
+                    reg.setPC(mem.readWord(reg.getSP()));
+                    reg.incSP(2);
+                    cycleCounter += 20;
+                }
+                break;
+
+            case 0xC1: // POP BC : 1,12
+                reg.setBC(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 12;
+                break;
+
+            case 0xC2: // JP NZ,a16 : 3,16/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetZ()) {
+                    cycleCounter += 12;
+                } else {
+                    reg.setPC(tempAddr);
+                    cycleCounter += 16;
+                }
+                break;
+
+            case 0xC3: // JP a16 : 3,16
+                reg.setPC(mem.readWord(reg.getThenIncPC(2)));
+                cycleCounter += 16;
+                break;
+
+            case 0xC4: // CALL NZ,a16 : 3,24/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetZ()) {
+                    cycleCounter += 12;
+                } else {
+                    reg.decSP(2);
+                    mem.writeWord(reg.getPC(), reg.getSP());
+                    reg.setPC(tempAddr);
+                    cycleCounter += 24;
+                }
+                break;
+
+            case 0xC5: // PUSH BC : 1,16
+                reg.decSP(2);
+                mem.writeWord(reg.getBC(), reg.getSP());
+                cycleCounter += 16;
+                break;
+
+            case 0xC6: // ADD A,d8 : 2,8 : Z 0 H C
+                operand = mem.readByte(reg.getThenIncPC(1));
+                priorValue = reg.getA();
+                reg.setA(priorValue + operand);
+                cycleCounter += 8;
+                // Flags
+                checkForZero(reg.getA());
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                checkAddForCarry(priorValue, reg.getA());
+                break;
+
+            case 0xC7: // RST 00H : 1,16
+                rstHelper(0x00);
+                break;
+
+            case 0xC8: // RET Z : 1,20/8
+                if (reg.isSetZ()) {
+                    reg.setPC(mem.readWord(reg.getSP()));
+                    reg.incSP(2);
+                    cycleCounter += 20;
+                } else {
+                    cycleCounter += 8;
+                }
+                break;
+
+            case 0xC9: // RET : 1,16
+                reg.setPC(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 16;
+                break;
+
+            case 0xCA: // JP Z,a16 : 3,16/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetZ()) {
+                    reg.setPC(tempAddr);
+                    cycleCounter += 16;
+                } else {
+                    cycleCounter += 12;
+                }
+                break;
+
+            // TODO: Process CB prefix opcodes here.
+
+            case 0xCC: // CALL Z,a16 : 3,24/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetZ()) {
+                    reg.decSP(2);
+                    mem.writeWord(reg.getPC(), reg.getSP());
+                    reg.setPC(tempAddr);
+                    cycleCounter += 24;
+                } else {
+                    cycleCounter += 12;
+                }
+                break;
+
+            case 0xCD: // CALL a16 : 3,24
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                reg.decSP(2);
+                mem.writeWord(reg.getPC(), reg.getSP());
+                reg.setPC(tempAddr);
+                cycleCounter += 24;
+                break;
+
+            case 0xCF: // RST 08H : 1,16
+                rstHelper(0x08);
+                break;
+
+            case 0xD7: // RST 10H : 1,16
+                rstHelper(0x10);
+                break;
+
+            case 0xDF: // RST 18H : 1,16
+                rstHelper(0x18);
+                break;
+
+            case 0xE7: // RST 20H : 1,16
+                rstHelper(0x20);
+                break;
+
+            case 0xEF: // RST 28H : 1,16
+                rstHelper(0x28);
+                break;
+
+            case 0xF7: // RST 30H : 1,16
+                rstHelper(0x30);
+                break;
+
+            case 0xFF: // RST 38H : 1,16
+                rstHelper(0x38);
+                break;
+
             default: // Unimplemented opcode
                 LOG.severe("Opcode " + Integer.toHexString(opcode) + " is not implemented.");
                 System.exit(1);
@@ -1270,6 +1411,17 @@ public class GameBoyCpu {
     }
 
     /**
+     * RST [predefined 8-bit immediate] : 1,16
+     * Note that the immediate is not actually an additional byte in the program.
+     */
+    private void rstHelper(int dest8) {
+        reg.decSP(2);
+        mem.writeWord(reg.getPC(), reg.getSP());
+        reg.setPC(dest8);
+        cycleCounter += 16; // TODO: find out if this is actually 32... sources disagree
+    }
+
+    /**
      * This class implements the Game Boy CPU's registers. NOTE: the setter
      * methods in this class will truncate their arguments to the appropriate
      * size (either 16 or 8 bits).
@@ -1365,6 +1517,16 @@ public class GameBoyCpu {
         public void incPC(int n) {
             PC += n;
             PC &= MASK_WORD;
+        }
+
+        public void incSP(int n) {
+            SP += n;
+            SP &= MASK_WORD;
+        }
+
+        public void decSP(int n) {
+            SP -= n;
+            SP &= MASK_WORD;
         }
 
         // Methods to get high portions
