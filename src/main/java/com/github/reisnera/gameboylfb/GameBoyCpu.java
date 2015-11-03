@@ -11,7 +11,6 @@ package com.github.reisnera.gameboylfb;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 public class GameBoyCpu {
     private static final Logger LOG = Logger.getLogger(GameBoyCpu.class.getName());
@@ -1051,79 +1050,67 @@ public class GameBoyCpu {
                 break;
 
             case 0xA0: // AND B : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getB);
+                bitwiseAndByteWithAccumulator(reg::getB, 4);
                 break;
 
             case 0xA1: // AND C : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getC);
+                bitwiseAndByteWithAccumulator(reg::getC, 4);
                 break;
 
             case 0xA2: // AND D : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getD);
+                bitwiseAndByteWithAccumulator(reg::getD, 4);
                 break;
 
             case 0xA3: // AND E : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getE);
+                bitwiseAndByteWithAccumulator(reg::getE, 4);
                 break;
 
             case 0xA4: // AND H : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getH);
+                bitwiseAndByteWithAccumulator(reg::getH, 4);
                 break;
 
             case 0xA5: // AND L : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getL);
+                bitwiseAndByteWithAccumulator(reg::getL, 4);
                 break;
 
             case 0xA6: // AND (HL) : 1,8 : Z 0 1 0
-                reg.setA(reg.getA() & mem.readByte(reg.getHL()));
-                cycleCounter += 8;
-                // Flags
-                checkForZero(reg.getA());
-                reg.clearFlagN();
-                reg.setFlagH();
-                reg.clearFlagCy();
+                bitwiseAndByteWithAccumulator(() -> mem.readByte(reg.getHL()), 8);
                 break;
 
             case 0xA7: // AND A : 1,4 : Z 0 1 0
-                bitwiseAndRegWithAccumulator(reg::getA);
+                bitwiseAndByteWithAccumulator(reg::getA, 4);
                 break;
 
             case 0xA8: // XOR B : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getB);
+                bitwiseXorByteWithAccumulator(reg::getB, 4);
                 break;
 
             case 0xA9: // XOR C : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getC);
+                bitwiseXorByteWithAccumulator(reg::getC, 4);
                 break;
 
             case 0xAA: // XOR D : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getD);
+                bitwiseXorByteWithAccumulator(reg::getD, 4);
                 break;
 
             case 0xAB: // XOR E : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getE);
+                bitwiseXorByteWithAccumulator(reg::getE, 4);
                 break;
 
             case 0xAC: // XOR H : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getH);
+                bitwiseXorByteWithAccumulator(reg::getH, 4);
                 break;
 
             case 0xAD: // XOR L : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getL);
+                bitwiseXorByteWithAccumulator(reg::getL, 4);
                 break;
 
             case 0xAE: // XOR (HL) : 1,8 : Z 0 0 0
-                reg.setA(reg.getA() ^ mem.readByte(reg.getHL()));
-                cycleCounter += 8;
-                // Flags
-                checkForZero(reg.getA());
-                reg.clearFlagN();
-                reg.clearFlagH();
-                reg.clearFlagCy();
+                bitwiseXorByteWithAccumulator(() -> mem.readByte(reg.getHL()), 8);
                 break;
 
             case 0xAF: // XOR A : 1,4 : Z 0 0 0
-                bitwiseXorRegWithAccumulator(reg::getA);
+                bitwiseXorByteWithAccumulator(reg::getA, 4);
                 break;
 
             case 0xC0: // RET NZ : 1,20/8
@@ -1360,8 +1347,59 @@ public class GameBoyCpu {
                 rstHelper(0x18);
                 break;
 
+            case 0xE0: // LDH (a8),A : 2,12
+                operand = mem.readByte(reg.getThenIncPC(1));
+                mem.writeByte(reg.getA(), MASK_HIGH_BYTE + operand);
+                cycleCounter += 12;
+                break;
+
+            case 0xE1: // POP HL : 1,12
+                reg.setHL(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 12;
+                break;
+
+            case 0xE2: // LD (C),A : 2,8
+                tempAddr = MASK_HIGH_BYTE + reg.getC();
+                mem.writeByte(reg.getA(), tempAddr);
+                cycleCounter += 8;
+                break;
+
+            case 0xE5: // PUSH HL : 1,16
+                reg.decSP(2);
+                mem.writeWord(reg.getHL(), reg.getSP());
+                cycleCounter += 16;
+                break;
+
+            case 0xE6: // AND d8 : 2,8 : Z 0 1 0
+                bitwiseAndByteWithAccumulator(() -> mem.readByte(reg.getPC()), 8);
+                reg.incPC(1);
+                break;
+
             case 0xE7: // RST 20H : 1,16
                 rstHelper(0x20);
+                break;
+
+            case 0xE8: // ADD SP,r8 : 2,16 : 0 0 H C
+                operand = mem.readByte(reg.getThenIncPC(1));
+                reg.setSP(reg.getSP() + (byte) operand);
+                cycleCounter += 16;
+                break;
+
+            case 0xE9: // JP (HL) : 1,4
+                reg.setPC(mem.readWord(reg.getHL()));
+                cycleCounter += 4;
+                break;
+
+            case 0xEA: // LD (a16),A : 3,16
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                mem.writeByte(reg.getA(), tempAddr);
+                cycleCounter += 16;
+                break;
+
+            case 0xEE: // XOR d8 : 2,8 : Z 0 0 0
+                bitwiseXorByteWithAccumulator(() -> mem.readByte(reg.getPC()), 8);
+                reg.incPC(1);
                 break;
 
             case 0xEF: // RST 28H : 1,16
@@ -1492,12 +1530,13 @@ public class GameBoyCpu {
     }
 
     /**
-     * AND [8-bit reg] : 1,4 : Z 0 1 0
-     * @param getByteRegister Byte register getter
+     * AND [8-bit register or immediate] : _ : Z 0 1 0
+     * @param byteGetter Method reference or lambda that supplies 1 byte.
+     * @param cycles Number of cycles required for this operation.
      */
-    private void bitwiseAndRegWithAccumulator(IntSupplier getByteRegister) {
-        reg.setA(reg.getA() & getByteRegister.getAsInt());
-        cycleCounter += 4;
+    private void bitwiseAndByteWithAccumulator(IntSupplier byteGetter, int cycles) {
+        reg.setA(reg.getA() & byteGetter.getAsInt());
+        cycleCounter += cycles;
         // Flags
         checkForZero(reg.getA());
         reg.clearFlagN();
@@ -1506,12 +1545,13 @@ public class GameBoyCpu {
     }
 
     /**
-     * XOR [8-bit reg] : 1,4 : Z 0 0 0
-     * @param getByteRegister Byte register getter
+     * XOR [8-bit register or immediate] : _ : Z 0 0 0
+     * @param byteGetter Method reference or lambda that supplies 1 byte.
+     * @param cycles Number of cycles required for this operation.
      */
-    private void bitwiseXorRegWithAccumulator(IntSupplier getByteRegister) {
-        reg.setA(reg.getA() ^ getByteRegister.getAsInt());
-        cycleCounter += 4;
+    private void bitwiseXorByteWithAccumulator(IntSupplier byteGetter, int cycles) {
+        reg.setA(reg.getA() ^ byteGetter.getAsInt());
+        cycleCounter += cycles;
         // Flags
         checkForZero(reg.getA());
         reg.clearFlagN();
