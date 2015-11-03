@@ -1239,14 +1239,123 @@ public class GameBoyCpu {
                 cycleCounter += 24;
                 break;
 
+            case 0xCE: // ADC A,d8 : 2,8 : Z 0 H C
+                addByteToByte(reg::getA, reg::setA, () -> mem.readByte(reg.getPC()), true);
+                reg.incPC(1);
+                cycleCounter += 8;
+                break;
+            
             case 0xCF: // RST 08H : 1,16
                 rstHelper(0x08);
                 break;
 
+            case 0xD0: // RET NC : 1,20/8
+                if (reg.isSetCy()) {
+                    cycleCounter += 8;
+                } else {
+                    reg.setPC(mem.readWord(reg.getSP()));
+                    reg.incSP(2);
+                    cycleCounter += 20;
+                }
+                break;
+
+            case 0xD1: // POP DE : 1,12
+                reg.setDE(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 12;
+                break;
+
+            case 0xD2: // JP NC,a16 : 3,16/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetCy()) {
+                    cycleCounter += 12;
+                } else {
+                    reg.setPC(tempAddr);
+                    cycleCounter += 16;
+                }
+                break;
+
+            // TODO: do something with opcodes that don't exist (e.g. 0xD3)
+
+            case 0xD4: // CALL NC,a16 : 3,24/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetCy()) {
+                    cycleCounter += 12;
+                } else {
+                    reg.decSP(2);
+                    mem.writeWord(reg.getPC(), reg.getSP());
+                    reg.setPC(tempAddr);
+                    cycleCounter += 24;
+                }
+                break;
+
+            case 0xD5: // PUSH DE : 1,16
+                reg.decSP(2);
+                mem.writeWord(reg.getDE(), reg.getSP());
+                cycleCounter += 16;
+                break;
+
+            case 0xD6: // SUB d8 : 2,8 : Z 1 H C
+                priorValue = reg.getA();
+                operand = mem.readByte(reg.getThenIncPC(1));
+                reg.setA(priorValue - operand);
+                cycleCounter += 8;
+                // Flags
+                checkForZero(reg.getA());
+                reg.setFlagN();
+                checkSubForHalfCarry(priorValue, reg.getA(), MASK_HALF_BYTE);
+                checkSubForCarry(priorValue, reg.getA());
+                break;
+            
             case 0xD7: // RST 10H : 1,16
                 rstHelper(0x10);
                 break;
 
+            case 0xD8: // RET C : 1,20/8
+                if (reg.isSetCy()) {
+                    reg.setPC(mem.readWord(reg.getSP()));
+                    reg.incSP(2);
+                    cycleCounter += 20;
+                } else {
+                    cycleCounter += 8;
+                }
+                break;
+
+            case 0xD9: // RETI : 1,16
+                reg.setPC(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 16;
+                interruptMasterEnableFlag = true;
+                break;
+
+            case 0xDA: // JP C,a16 : 3,16/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetCy()) {
+                    reg.setPC(tempAddr);
+                    cycleCounter += 16;
+                } else {
+                    cycleCounter += 12;
+                }
+                break;
+
+            case 0xDC: // CALL C,a16 : 3,24/12
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                if (reg.isSetCy()) {
+                    reg.decSP(2);
+                    mem.writeWord(reg.getPC(), reg.getSP());
+                    reg.setPC(tempAddr);
+                    cycleCounter += 24;
+                } else {
+                    cycleCounter += 12;
+                }
+                break;
+
+            case 0xDE: // SBC A,d8 : 2,8
+                subtractByteFromByte(reg::getA, reg::setA, () -> mem.readByte(reg.getPC()), true);
+                reg.incPC(1);
+                cycleCounter += 8;
+                break;
+            
             case 0xDF: // RST 18H : 1,16
                 rstHelper(0x18);
                 break;
