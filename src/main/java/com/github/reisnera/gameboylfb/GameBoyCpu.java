@@ -1114,6 +1114,40 @@ public class GameBoyCpu {
                 bitwiseXorByteWithAccumulator(reg::getA, 4);
                 break;
 
+            case 0xB0: // OR B : 1,4 : Z 0 0 0
+                orByteWithA(reg::getB);
+                break;
+
+            case 0xB1: // OR C : 1,4 : Z 0 0 0
+                orByteWithA(reg::getC);
+                break;
+
+            case 0xB2: // OR D : 1,4 : Z 0 0 0
+                orByteWithA(reg::getD);
+                break;
+
+            case 0xB3: // OR E : 1,4 : Z 0 0 0
+                orByteWithA(reg::getE);
+                break;
+
+            case 0xB4: // OR H : 1,4 : Z 0 0 0
+                orByteWithA(reg::getH);
+                break;
+
+            case 0xB5: // OR L : 1,4 : Z 0 0 0
+                orByteWithA(reg::getL);
+                break;
+
+            case 0xB6: // OR (HL) : 1,8 : Z 0 0 0
+                orByteWithA(() -> mem.readWord(reg.getHL()));
+                // add 4 cycles for memory load to 4 cycles for OR
+                cycleCounter += 4;
+                break;
+
+            case 0xB7: // OR A : 1,4 : Z 0 0 0
+                orByteWithA(reg::getA);
+                break;
+
             case 0xC0: // RET NZ : 1,20/8
                 if (reg.isSetZ()) {
                     cycleCounter += 8;
@@ -1555,6 +1589,19 @@ public class GameBoyCpu {
         } else {
             reg.clearFlagCy();
         }
+    }
+
+    /**
+     *
+     * @param getSrc Byte register getter to compare with A
+     */
+    private void orByteWithA(IntSupplier getSrc) {
+        // flags
+        checkForZero(reg.getA() | getSrc.getAsInt());
+        reg.clearFlagN();
+        reg.clearFlagH();
+        reg.clearFlagCy();
+        cycleCounter += 4;
     }
 
     /**
