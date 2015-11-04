@@ -74,6 +74,7 @@ public class GameBoyCpu {
         int tempAddr;
         int priorValue;
         int mostSigBit, leastSigBit;
+        int tempResult;
 
         // Opcode reference:
         // http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -1406,8 +1407,83 @@ public class GameBoyCpu {
                 rstHelper(0x28);
                 break;
 
+            case 0xF0: // LDH A,(a8) : 2,12
+                operand = mem.readByte(reg.getThenIncPC(1));
+                reg.setA(mem.readByte(MASK_HIGH_BYTE + operand));
+                cycleCounter += 12;
+                break;
+
+            case 0xF1: // POP AF : 1,12 : Z N H C
+                // Note, we do not have to manually process the flags. They are altered
+                // because the F register is being restored!
+                reg.setAF(mem.readWord(reg.getSP()));
+                reg.incSP(2);
+                cycleCounter += 12;
+                break;
+
+            case 0xF2: // LD A,(C) : 1,8
+                tempAddr = MASK_HIGH_BYTE + reg.getC();
+                reg.setA(mem.readByte(tempAddr));
+                cycleCounter += 8;
+                break;
+
+            case 0xF3: // DI : 1,4
+                // TODO: crap... enabling and disabling interrupts happens after the NEXT inst...
+                interruptMasterEnableFlag = false;
+                cycleCounter += 4;
+                break;
+
+            case 0xF5: // PUSH AF : 1,16
+                reg.decSP(2);
+                mem.writeWord(reg.getAF(), reg.getSP());
+                cycleCounter += 16;
+                break;
+
+            // TODO: opcode 0xF6
+
             case 0xF7: // RST 30H : 1,16
                 rstHelper(0x30);
+                break;
+
+            case 0xF8: // LD HL,SP+r8 : 2,12 : 0 0 H C
+                operand = mem.readByte(reg.getThenIncPC(1));
+                priorValue = reg.getSP();
+                reg.setHL(priorValue + (byte) operand);
+                cycleCounter += 12;
+                // Flags
+                // TODO: what are the half-carry and carry flags even based on here???
+                reg.clearFlagZ();
+                reg.clearFlagN();
+                checkAddForHalfCarry(priorValue, reg.getHL(), MASK_BYTE_PLUS_NIBBLE);
+                checkAddForCarry(priorValue, reg.getHL());
+                break;
+
+            case 0xF9: // LD SP,HL : 1,8
+                reg.setSP(reg.getHL());
+                cycleCounter += 8;
+                break;
+
+            case 0xFA: // LD A,(a16) : 3,16
+                tempAddr = mem.readWord(reg.getThenIncPC(2));
+                reg.setA(mem.readByte(tempAddr));
+                cycleCounter += 16;
+                break;
+
+            case 0xFB: // EI : 1,4
+                // TODO: crap... enabling and disabling interrupts happens after the NEXT inst...
+                interruptMasterEnableFlag = true;
+                cycleCounter += 4;
+                break;
+
+            case 0xFE: // CP d8 : 2,8 : Z 1 H C
+                operand = mem.readByte(reg.getThenIncPC(1));
+                tempResult = reg.getA() - operand;
+                cycleCounter += 8;
+                // Flags
+                checkForZero(tempResult);
+                reg.setFlagN();
+                checkSubForHalfCarry(reg.getA(), tempResult, MASK_HALF_BYTE);
+                checkSubForCarry(reg.getA(), tempResult);
                 break;
 
             case 0xFF: // RST 38H : 1,16
