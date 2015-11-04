@@ -1592,12 +1592,13 @@ public class GameBoyCpu {
     }
 
     /**
-     *
+     * // OR [byte] : 1,4 : Z 0 0 0
      * @param getSrc Byte register getter to compare with A
      */
     private void orByteWithA(IntSupplier getSrc) {
+        reg.setA(reg.getA() | getSrc.getAsInt());
         // flags
-        checkForZero(reg.getA() | getSrc.getAsInt());
+        checkForZero(reg.getA());
         reg.clearFlagN();
         reg.clearFlagH();
         reg.clearFlagCy();
